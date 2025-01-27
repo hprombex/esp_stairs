@@ -1,0 +1,847 @@
+substitutions:
+  transition_length: 0.7s
+  transition_length_short: 0.2s
+
+  delayedon: 20ms
+  delayedoff: 100ms
+  delayed_onoff: 100ms # old 60ms
+
+  led_type: WS2812X
+  led_fixed_gamma: "1.0"
+  led_count: "714" # Number of LEDs
+
+  step_00_start: "0"
+  step_00_end: "41"
+
+  step_01_start: "42"
+  step_01_end: "83"
+
+  step_02_start: "84"
+  step_02_end: "125"
+
+  step_03_start: "126"
+  step_03_end: "167"
+
+  step_04_start: "168"
+  step_04_end: "209"
+
+  step_05_start: "210"
+  step_05_end: "251"
+
+  step_06_start: "252"
+  step_06_end: "293"
+
+  step_07_start: "294"
+  step_07_end: "335"
+
+  step_08_start: "336"
+  step_08_end: "377"
+
+  step_09_start: "378"
+  step_09_end: "419"
+
+  step_10_start: "420"
+  step_10_end: "461"
+
+  step_11_start: "462"
+  step_11_end: "503"
+
+  step_12_start: "504"
+  step_12_end: "545"
+
+  step_13_start: "546"
+  step_13_end: "587"
+
+  step_14_start: "588"
+  step_14_end: "629"
+
+  step_15_start: "630"
+  step_15_end: "671"
+
+  step_16_start: "672"
+  step_16_end: "713"
+
+  # ALL LEDS DATA PIN
+  GPIO_LEDS: GPIO16 #RX2
+
+  # PIR STEPS 1 - 2
+  GPIO_S01P: GPIO32 #D32
+  GPIO_S02P: GPIO33 #D33
+
+  # PIR STEPS 13 - 15
+  GPIO_S13P: GPIO18 #D18
+  GPIO_S14P: GPIO19 #D19
+  GPIO_S15P: GPIO21 #D21
+
+  # PIR STEPS init
+  GPIO_SA00P: GPIO27 #D27
+  GPIO_SA01P: GPIO13 #D13
+  GPIO_SA02P: GPIO14 #D14
+
+esphome:
+  name: esp-stairs
+  friendly_name: esp_stairs
+  on_boot:
+    then:
+      - light.turn_off: step_00
+      - light.turn_off: step_01
+      - light.turn_off: step_02
+      - light.turn_off: step_03
+      - light.turn_off: step_04
+      - light.turn_off: step_05
+      - light.turn_off: step_06
+      - light.turn_off: step_07
+      - light.turn_off: step_08
+      - light.turn_off: step_09
+      - light.turn_off: step_10
+      - light.turn_off: step_11
+      - light.turn_off: step_12
+      - light.turn_off: step_13
+      - light.turn_off: step_14
+      - light.turn_off: step_15
+      - light.turn_off: step_16
+      - light.turn_off: all_steps
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+  # level: ERROR
+  # W/A for: Could not allocate memory for JSON document! Requested 708 bytes, largest free heap block: X
+  level: NONE
+  baud_rate: 0
+
+api:
+  encryption:
+    key: !secret esp_stairs_api_key
+
+ota:
+  - platform: esphome
+    password: !secret esp_stairs_ota_password
+
+web_server:
+  port: 80
+  version: 1
+  auth:
+    username: !secret web_server_username
+    password: !secret web_server_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: True
+  power_save_mode: none
+  reboot_timeout: 0s
+
+  manual_ip:
+    static_ip: !secret esp_stairs_ip
+    gateway: 10.10.51.1
+    subnet: 255.255.255.0
+    dns1: 10.10.51.1
+
+  ap:
+    ssid: "Esp-Stairs Fallback Hotspot"
+    password: !secret wifi_password_backup
+
+captive_portal:
+
+# Global variables to store last_off state and RGB color values, with persistent restoration
+globals:
+  - id: last_off
+    type: std::string
+    restore_value: yes
+    max_restore_data_length: 24
+    initial_value: '""' # Last state before turning off
+
+  - id: color_red
+    type: float
+    restore_value: yes
+    initial_value: "1.0" # Red color intensity
+
+  - id: color_green
+    type: float
+    restore_value: yes
+    initial_value: "1.0" # Green color intensity
+
+  - id: color_blue
+    type: float
+    restore_value: yes
+    initial_value: "1.0" # Blue color intensity
+
+  # "Globals" are used for track the light state because of light.is_off happens
+  # after the transmission length (700ms in my case).
+  # Which is very long and creates curious situations when the light is
+  # turning "off" but is still in "on" state until the transmission is done.
+  - id: light_step_00_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_01_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_02_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_03_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_04_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_05_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_06_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_07_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_08_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_09_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_10_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_11_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_12_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_13_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_14_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_15_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+  - id: light_step_16_state
+    type: std::string
+    restore_value: no
+    max_restore_data_length: 8
+    initial_value: '"off"' # on or off
+
+light:
+  # ALL LEDs
+  - platform: neopixelbus
+    type: GRB
+    variant: ${led_type}
+    gamma_correct: ${led_fixed_gamma}
+    pin: ${GPIO_LEDS}
+    num_leds: ${led_count}
+    name: "steps"
+    id: all_steps
+    default_transition_length: ${transition_length}
+    internal: True
+
+  - platform: partition
+    name: "Step 00"
+    id: "step_00"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_00_start}
+        to: ${step_00_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 01"
+    id: "step_01"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_01_start}
+        to: ${step_01_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 02"
+    id: "step_02"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_02_start}
+        to: ${step_02_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 03"
+    id: "step_03"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_03_start}
+        to: ${step_03_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 04"
+    id: "step_04"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_04_start}
+        to: ${step_04_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 05"
+    id: "step_05"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_05_start}
+        to: ${step_05_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 06"
+    id: "step_06"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_06_start}
+        to: ${step_06_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 07"
+    id: "step_07"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_07_start}
+        to: ${step_07_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 08"
+    id: "step_08"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_08_start}
+        to: ${step_08_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 09"
+    id: "step_09"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_09_start}
+        to: ${step_09_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 10"
+    id: "step_10"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_10_start}
+        to: ${step_10_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 11"
+    id: "step_11"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_11_start}
+        to: ${step_11_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 12"
+    id: "step_12"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_12_start}
+        to: ${step_12_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 13"
+    id: "step_13"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_13_start}
+        to: ${step_13_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 14"
+    id: "step_14"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_14_start}
+        to: ${step_14_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 15"
+    id: "step_15"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_15_start}
+        to: ${step_15_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+  - platform: partition
+    name: "Step 16"
+    id: "step_16"
+    gamma_correct: ${led_fixed_gamma}
+    default_transition_length: ${transition_length}
+    segments:
+      - id: all_steps
+        from: ${step_16_start}
+        to: ${step_16_end}
+    effects: !include esp_stairs_files/effects.yaml
+
+binary_sensor:
+  - platform: gpio # PIR init 0
+    name: PIR init Step 00
+    id: pir_step_00_init
+    pin: ${GPIO_SA00P}
+    device_class: motion
+    filters:
+      - delayed_off: !lambda "return (id(delay_off_init_pir).state * 1000) - 500;"
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+    on_press: # Motion detected
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - if:
+                  condition:
+                    and:
+                      # - light.is_off: step_00
+                      # - light.is_off: step_01
+                      # - light.is_off: step_02
+                      # - light.is_off: step_03
+                      # - light.is_off: step_04
+                      - lambda: 'return id(light_step_04_state) == "off";'
+                  then:
+                    - wait_until: # TODO check this
+                        condition:
+                          # light.is_off: step_11  # Check if step_11 is off
+                          lambda: 'return id(light_step_11_state) == "off";'
+                        timeout: 50ms
+                    - script.execute: turn_ON_stairs_light_from_00_to_04_init
+              - wait_until:
+                  condition:
+                    lambda: "return (id(pir_step_01).state || id(pir_step_02).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
+              - script.execute: turn_ON_stairs_light_from_00_to_16
+    on_release:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - globals.set:
+                  id: last_off
+                  value: '"pir_step_01_init"'
+              - delay: 100ms
+              - wait_until:
+                  condition:
+                    and:
+                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
+                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
+                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
+              - delay: 100ms
+              - if:
+                  condition:
+                    lambda: 'return id(last_off) == "pir_step_01_init";'
+                  then:
+                    - script.execute: turn_OFF_stairs_light_from_16_to_00
+
+  - platform: gpio # PIR init 1
+    name: PIR init Step 01
+    id: pir_step_01_init
+    pin: ${GPIO_SA01P}
+    device_class: motion
+    filters:
+      - delayed_off: !lambda "return id(delay_off_init_pir).state * 1000;"
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+    on_press:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - if:
+                  condition:
+                    and:
+                      # - light.is_off: step_00
+                      # - light.is_off: step_01
+                      # - light.is_off: step_02
+                      # - light.is_off: step_03
+                      # - light.is_off: step_04
+                      - lambda: 'return id(light_step_04_state) == "off";'
+                  then:
+                    - wait_until: # TODO check this
+                        condition:
+                          # light.is_off: step_11  # Check if step_11 is off
+                          lambda: 'return id(light_step_11_state) == "off";'
+                        timeout: 50ms
+                    - script.execute: turn_ON_stairs_light_from_00_to_04_init
+              - wait_until:
+                  condition:
+                    lambda: "return (id(pir_step_01).state || id(pir_step_02).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
+              - script.execute: turn_ON_stairs_light_from_00_to_16
+    on_release:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - globals.set:
+                  id: last_off
+                  value: '"pir_step_01_init"'
+              - delay: 100ms
+              - wait_until:
+                  condition:
+                    and:
+                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
+                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
+                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
+              - delay: 100ms
+              - if:
+                  condition:
+                    lambda: 'return id(last_off) == "pir_step_01_init";'
+                  then:
+                    - script.execute: turn_OFF_stairs_light_from_16_to_00
+
+  - platform: gpio # PIR init 2
+    name: PIR init Step 02
+    id: pir_step_02_init
+    pin: ${GPIO_SA02P}
+    device_class: motion
+    filters:
+      - delayed_off: !lambda "return id(delay_off_init_pir).state * 1000;"
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+    on_press:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - if:
+                  condition:
+                    and:
+                      # - light.is_off: step_16
+                      # - light.is_off: step_14
+                      # - light.is_off: step_13
+                      # - light.is_off: step_12
+                      - lambda: 'return id(light_step_12_state) == "off";'
+                  then:
+                    - wait_until: # TODO check this
+                        condition:
+                          # light.is_off: step_05  # Check if step_05 is off
+                          lambda: 'return id(light_step_05_state) == "off";'
+                        timeout: 50ms
+                    - script.execute: turn_ON_stairs_light_from_16_to_12_init
+              - wait_until:
+                  condition:
+                    lambda: "return (id(pir_step_15).state || id(pir_step_14).state || id(pir_step_13).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
+              - script.execute: turn_ON_stairs_light_from_16_to_00
+    on_release:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - globals.set:
+                  id: last_off
+                  value: '"pir_step_02_init"'
+              - delay: 100ms
+              - wait_until:
+                  condition:
+                    and:
+                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
+                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
+                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
+              - delay: 100ms
+              - if:
+                  condition:
+                    lambda: 'return id(last_off) == "pir_step_02_init";'
+                  then:
+                    - script.execute: turn_OFF_stairs_light_from_00_to_16
+
+  # PIR 1 - 2
+  - platform: gpio
+    pin: ${GPIO_S01P}
+    name: pir_step_01
+    device_class: motion
+    id: pir_step_01
+    filters:
+      - delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  - platform: gpio
+    pin: ${GPIO_S02P}
+    name: pir_step_02
+    device_class: motion
+    id: pir_step_02
+    filters:
+      - delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  # PIR 13 - 15
+  - platform: gpio
+    pin: ${GPIO_S13P}
+    name: pir_step_13
+    device_class: motion
+    id: pir_step_13
+    filters:
+      #- delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  - platform: gpio
+    pin: ${GPIO_S14P}
+    name: pir_step_14
+    device_class: motion
+    id: pir_step_14
+    filters:
+      #- delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  - platform: gpio
+    pin: ${GPIO_S15P}
+    name: pir_step_15
+    device_class: motion
+    id: pir_step_15
+    filters:
+      #- delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  # DEBUG BINARY SENSORS
+  - platform: template
+    name: "turn_ON_stairs_light_from_00_to_16 script running"
+    lambda: |-
+      return id(turn_ON_stairs_light_from_00_to_16).is_running();
+
+  - platform: template
+    name: "turn_ON_stairs_light_from_16_to_00 script running"
+    lambda: |-
+      return id(turn_ON_stairs_light_from_16_to_00).is_running();
+
+  - platform: template
+    name: "turn_OFF_stairs_light_from_00_to_16 script running"
+    lambda: |-
+      return id(turn_OFF_stairs_light_from_00_to_16).is_running();
+
+  - platform: template
+    name: "turn_OFF_stairs_light_from_16_to_00 script running"
+    lambda: |-
+      return id(turn_OFF_stairs_light_from_16_to_00).is_running();
+
+  - platform: template
+    name: "turn_ON_stairs_light_from_16_to_12_init script running"
+    lambda: |-
+      return id(turn_ON_stairs_light_from_16_to_12_init).is_running();
+
+  - platform: template
+    name: "turn_ON_stairs_light_from_00_to_04_init script running"
+    lambda: |-
+      return id(turn_ON_stairs_light_from_00_to_04_init).is_running();
+
+sensor:
+  - platform: uptime
+    name: Uptime
+    id: esp_uptime
+    filters:
+      - lambda: return x / 60;
+    unit_of_measurement: min
+
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: WiFi Signal dB
+    id: wifi_signal_db
+    update_interval: 60s
+    unit_of_measurement: "dB"
+    entity_category: diagnostic
+
+  - platform: copy # Reports the WiFi signal strength in %
+    source_id: wifi_signal_db
+    name: WiFi Signal Percent
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: diagnostic
+
+  - platform: template
+    id: cpu_temperature
+    name: CPU temperature
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    lambda: return temperatureRead();
+    entity_category: diagnostic
+
+button:
+  - platform: template
+    name: Reboot
+    id: reboot_button
+    icon: mdi:restart
+    on_press:
+      - lambda: return esp_restart();
+
+switch:
+  platform: template
+  id: auto_lights
+  name: Auto Lights
+  optimistic: True
+  restore_mode: RESTORE_DEFAULT_ON
+
+number:
+  - platform: template
+    name: Leds Brightness
+    id: leds_brightness
+    min_value: 0
+    max_value: 100
+    step: 1
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 100
+
+  - platform: template
+    name: Delay Short
+    id: delay_short
+    min_value: 5
+    max_value: 1000
+    step: 5
+    unit_of_measurement: "ms"
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 50
+
+  - platform: template
+    name: Delay Long
+    id: delay_long
+    min_value: 5
+    max_value: 1000
+    step: 5
+    unit_of_measurement: "ms"
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 200
+
+  - platform: template
+    name: Delay Turn Off
+    id: delay_turnoff
+    min_value: 0
+    max_value: 1000
+    step: 5
+    unit_of_measurement: "ms"
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 300
+
+  - platform: template
+    name: Delay Off Init PIR
+    id: delay_off_init_pir
+    min_value: 5
+    max_value: 1000
+    step: 1
+    unit_of_measurement: "s"
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 30
+
+# include "SELECT" values
+<<: !include esp_stairs_files/select_values.yaml
+
+# include "SCRIPT" for lights
+<<: !include esp_stairs_files/script_lights.yaml
