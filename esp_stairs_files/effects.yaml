@@ -1,0 +1,284 @@
+- addressable_rainbow:
+    name: Rainbow
+- pulse:
+    name: Slow Pulse
+    transition_length: 3s
+    update_interval: 2s
+    min_brightness: 10%
+    max_brightness: 100%
+- addressable_color_wipe:
+    name: Color Wipe
+    add_led_interval: 10ms
+
+- addressable_lambda:
+    name: Wipe In
+    update_interval: 1ms
+    lambda: |-
+      static int x = 0;
+      if (initial_run) {
+        x = 0;
+        it.all() = ESPColor::BLACK;
+      }
+      if (x < it.size()) {
+        it[x] = current_color;
+        x += 1;
+      }
+
+- addressable_lambda:
+    name: Wipe Out
+    update_interval: 1ms
+    lambda: |-
+      static int x = 0;
+      if (initial_run) {
+        x = it.size();
+        it.all() = ESPColor::WHITE;
+      }
+      if (x > 0) {
+        x -= 1; 
+        it[x] = ESPColor::BLACK;
+      }
+
+- addressable_lambda:
+    name: Police All
+    # update_interval: 50ms
+    update_interval: 10ms
+    lambda: |-
+      static uint16_t pos = 0;
+      if (pos < it.size() / 2) {
+        it.range(pos, pos + it.size() / 2) = Color(255, 0, 0);       //fill red
+        it.range(0, pos) = Color(0, 0, 255);                         //fill blue
+        it.range(pos + it.size() / 2, it.size()) = Color(0, 0, 255); //fill blue
+      } else {
+        it.range(pos - it.size() / 2, pos) = Color(0, 0, 255);       //fill blue
+        it.range(0, pos - it.size() / 2) = Color(255, 0, 0);         //fill red
+        it.range(pos, it.size()) = Color(255, 0, 0);                 //fill red
+      }
+      pos++;
+      if (pos >= it.size()) pos = 0; //rollover
+
+- addressable_lambda:
+    name: Flames Vertical
+    # update_interval: 18ms
+    update_interval: 35ms
+    lambda: |-
+      // You may adjust the following two variables as well as the update_interval to fit your needs
+      const uint8_t Cooling  = 55;
+      const uint8_t Sparking = 110;
+
+      // Use byte* instead of byte[] to allow dynamic allocation based on number of pixels
+      static byte *heat = (byte*) calloc(it.size(), sizeof(byte));
+      int cooldown;
+
+      // Step 1.  Cool down every cell a little
+      for (uint16_t i = 0; i < it.size(); i++) {
+        cooldown = random(0, ((Cooling * 10) / it.size()) + 2);
+
+        if (cooldown > heat[i]) {
+          heat[i] = 0;
+        } else {
+          heat[i] = heat[i] - cooldown;
+        }
+      }
+
+      // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+      for (uint16_t k = it.size() - 1; k >= 2; k--) {
+        heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
+      }
+
+      // Step 3.  Randomly ignite new 'sparks' near the bottom
+      if (random(255) < Sparking) {
+        int y = random(min(it.size() / 10, 7));
+        heat[y] = heat[y] + random(160, 255);
+      }
+
+      // Step 4.  Convert heat to LED colors
+      for (uint16_t Pixel = 0; Pixel < it.size(); Pixel++) {
+        // Scale 'heat' down from 0-255 to 0-191
+        byte t192 = round((heat[Pixel] / 255.0) * 191);
+
+        // calculate ramp up from
+        byte heatramp = t192 & 0x3F; // 0..63
+        heatramp <<= 2; // scale up to 0..252
+
+        // figure out which third of the spectrum we're in:
+        //this is where you can reverse the effect by switching the commented out lines in all 3 places.
+        if (t192 > 0x80) {                     // hottest
+          it[it.size() - Pixel - 1] = ESPColor(255, 255, heatramp);
+          // it[Pixel] = ESPColor(255, 255, heatramp);
+        } else if (t192 > 0x40 ) {             // middle
+          it[it.size() - Pixel - 1] = ESPColor(255, heatramp, 0);
+          // it[Pixel] = ESPColor(255, heatramp, 0);
+        } else {                               // coolest
+          it[it.size() - Pixel - 1] = ESPColor(heatramp, 0, 0);
+          // it[Pixel] = ESPColor(heatramp, 0, 0);
+        }
+      }
+
+- addressable_lambda:
+    name: Cycle Colors
+    update_interval: 10ms
+    lambda: |-
+      static uint16_t num1 = 0;
+      static uint16_t red = 255;
+      static uint16_t green = 3;
+      static uint16_t blue = 3;
+
+      uint16_t num = num1;
+      uint16_t numled = it.size();
+
+      if(red > 251 && blue < 4 && green < 252){
+        green+=5;
+
+      } else if (red > 3 && green > 251 && blue < 4){
+        red-=5;
+
+      } else if (red < 4 && green > 251 && blue < 252){
+        blue+=5;
+        
+      } else if (red < 4 && green > 3 && blue > 251){
+        green-=5;
+        
+      } else if (red < 252 && green < 4 && blue > 251){
+        red+=5;
+        
+      } else if (red > 251 && green < 4 && blue > 3){
+        blue-=5;
+        
+      }
+
+      it[num] = Color(red, green, blue);
+      it[(numled) - num] = Color(red, green, blue);
+      if(num1 == (numled +1) / 2){
+        num1 = 0;
+      } else {
+        num1++;
+      }
+
+- addressable_lambda:
+    name: Wheel of Color
+    update_interval: 100ms
+    lambda: |-
+      esphome::Color colors[] = { ESPColor(255,0,0), 
+                  ESPColor(0,255,0), 
+                  ESPColor(255,255,0),  
+                  ESPColor(0,0,255),  
+                  ESPColor(255,82,0),  
+                  ESPColor(163,0,255),  
+                  };
+                            
+      static int state = 0;
+      static int step = 0;
+      const int color_size = 6;
+      static int width = it.size();
+
+      for (int i = it.size() - 1; i > 0; i--) {
+        it[i] = it[i - 1].get();
+      }
+
+      it[0] = colors[state];
+
+      step += 1;
+      if (step >= width){
+        step = 0;
+        state += 1;
+        if (state >= color_size) 
+            state = 0;
+      }
+
+- addressable_lambda:
+    name: Fire
+    update_interval: 50ms
+    lambda: |-
+      for (uint16_t i = 0; i < it.size(); i++) {                                        //uint8_t may be enough, if using < 256, but doesn't matter memorywise
+        float brightness = (it.size()/2 - abs(it.size()/2 - i)) / (float)(it.size()/2); //center effect, fade out to the edges
+        uint8_t whiteness = random(64 * brightness);                                    //add some white, centered
+        uint8_t redness = random(64) + random(127 * brightness);                        //make red
+        uint8_t greeness = random(redness/2);                                           //add some green to give it a yellow tint
+        it[i] = ESPColor(whiteness + redness, whiteness + greeness, whiteness);
+      }
+
+- addressable_lambda:
+    name: Blue fire
+    update_interval: 5ms
+    lambda: |-
+      for( int Pixel = 0; Pixel <= it.size(); Pixel++) {
+        it[Pixel] = Color(22, 24, 130);
+        Color color1;
+        uint8_t r1,g1,b1;
+        uint8_t r2,g2,b2;
+        uint8_t r3,g3,b3;
+        int16_t r,g,b;
+
+        color1 = it[Pixel].get();
+        //int color2[] = {80,35,0};
+        int color2[] = {70, 185, 242};
+        //ESP_LOGD("main", "Color1 :(%d,%d,%d)", color1[0],color1[1],color1[2]);
+
+        r1 = (color1[0] ),
+        g1 = (color1[1] ),
+        b1 = (color1[2] );
+
+        r2 = (color2[0] ),
+        g2 = (color2[1] ),
+        b2 = (color2[2] );
+
+        // Add Color
+        it[Pixel] = Color(constrain(r1+r2, 0, 255), constrain(g1+g2, 0, 255), constrain(b1+b2, 0, 255));
+        int rc = random(160);
+
+        // subtract
+        
+        color2[0] = rc/4;
+        color2[1] = rc/4;
+        color2[2] = rc;
+
+        r1 = (color1[0] ),
+        g1 = (color1[1] ),
+        b1 = (color1[2] );
+
+        r2 = (color2[0] ),
+        g2 = (color2[1] ),
+        b2 = (color2[2] );
+
+        r=(int16_t)r1-(int16_t)r2;
+        g=(int16_t)g1-(int16_t)g2;
+        b=(int16_t)b1-(int16_t)b2;
+        if(r<0) r=0;
+        if(g<0) g=0;
+        if(b<0) b=0;
+
+        //ESP_LOGD("main", "Color1 :(%d,%d,%d)", r,g,b);
+        // Substract Color
+        it[Pixel] = Color(r, g, b);
+      }
+
+      delay(random(10,120));
+
+- addressable_lambda:
+    name: Lightning
+    update_interval: 48ms
+    lambda: |-
+      static uint16_t next_frame = 0;
+      static uint16_t frame = 0;
+      static uint8_t flashes = 0;
+      uint16_t px_start = 0;
+      uint16_t px_end   = 0;
+      px_start = random(it.size());
+      px_end = px_start + 1 + random(it.size() - px_start);
+      if (!frame) { // first frame
+        flashes = 4 + random(5);
+        next_frame = flashes * 2 + 5 + random(25);
+        // next_frame = flashes * 2 + 5 + random(5);
+        it.all() = esphome::Color::BLACK;
+      }
+      if (frame == 0) { // first frame less intensity
+        it.range(px_start, px_end) = current_color * 63;
+      } else if (frame > 3 && !(frame & 1) && flashes) {
+        uint8_t bri = 255 / (1 + random(2));
+        it.range(px_start, px_end) = current_color * bri;
+        flashes--;
+      } else {
+        it.all() = esphome::Color::BLACK;
+      }
+      frame++;
+      if (frame >= next_frame) frame = 0; // Reset frames

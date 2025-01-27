@@ -1,0 +1,186 @@
+select:
+  - platform: template
+    name: Effects
+    id: effects
+    optimistic: true
+    options:
+      - None
+      - Rainbow
+      - Slow Pulse
+      - Color Wipe
+      - Wipe In
+      - Wipe Out
+      - Police All
+      - Flames Vertical
+      - Cycle Colors
+      - Wheel of Color
+      - Fire
+      - Blue fire
+      # - Christmas RedGreen
+      - Lightning
+    initial_option: None
+    restore_value: true
+
+  - platform: template
+    name: Color
+    id: color
+    optimistic: true
+    restore_value: true
+    options:
+      - white
+      - red
+      - green
+      - blue
+      - cyan
+      - orange
+      - yellow
+      - 3000k
+      - 4000k
+      - 5000k
+      - 6000k
+    initial_option: white
+    on_value:
+      then:
+        - if:
+            condition:
+              lambda: 'return id(color).state == "white";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "1.0"
+              - globals.set:
+                  id: color_green
+                  value: "1.0"
+              - globals.set:
+                  id: color_blue
+                  value: "1.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "red";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "1.0"
+              - globals.set:
+                  id: color_green
+                  value: "0.0"
+              - globals.set:
+                  id: color_blue
+                  value: "0.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "blue";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "0.0"
+              - globals.set:
+                  id: color_green
+                  value: "0.0"
+              - globals.set:
+                  id: color_blue
+                  value: "1.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "cyan";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "0.0"
+              - globals.set:
+                  id: color_green
+                  value: "1.0"
+              - globals.set:
+                  id: color_blue
+                  value: "1.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "green";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "0.0"
+              - globals.set:
+                  id: color_green
+                  value: "1.0"
+              - globals.set:
+                  id: color_blue
+                  value: "0.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "orange";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "1.0"
+              - globals.set:
+                  id: color_green
+                  value: "0.65"
+              - globals.set:
+                  id: color_blue
+                  value: "0.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "yellow";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "1.0"
+              - globals.set:
+                  id: color_green
+                  value: "1.0"
+              - globals.set:
+                  id: color_blue
+                  value: "0.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "3000k";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "1.0"
+              - globals.set:
+                  id: color_green
+                  value: "0.7"
+              - globals.set:
+                  id: color_blue
+                  value: "0.4"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "4000k";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "1.0"
+              - globals.set:
+                  id: color_green
+                  value: "0.85"
+              - globals.set:
+                  id: color_blue
+                  value: "0.7"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "5000k";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "0.9"
+              - globals.set:
+                  id: color_green
+                  value: "0.9"
+              - globals.set:
+                  id: color_blue
+                  value: "1.0"
+        - if:
+            condition:
+              lambda: 'return id(color).state == "6000k";'
+            then:
+              - globals.set:
+                  id: color_red
+                  value: "0.8"
+              - globals.set:
+                  id: color_green
+                  value: "0.85"
+              - globals.set:
+                  id: color_blue
+                  value: "1.0"

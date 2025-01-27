@@ -1,0 +1,1498 @@
+script:
+  # TURN ON LIGHTS
+  - id: turn_ON_stairs_light_from_00_to_16
+    mode: single
+    then:
+      - if:
+          condition:
+            - script.is_running: turn_ON_stairs_light_from_00_to_04_init
+          then:
+            # - script.wait: turn_ON_stairs_light_from_00_to_04_init
+            - script.stop: turn_ON_stairs_light_from_00_to_04_init
+      - if:
+          condition:
+            or:
+              - binary_sensor.is_on: pir_step_00_init
+              - binary_sensor.is_on: pir_step_01_init
+              - binary_sensor.is_on: pir_step_02_init
+          then:
+            - if:
+                condition:
+                  # - light.is_off: step_00  # when init has already turned on this step
+                  - lambda: 'return id(light_step_00_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_00_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_00
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_short).state;"
+                else:
+                  - globals.set:
+                      id: light_step_00_state
+                      value: '"on"'
+                  # - light.control:
+                  #     id: step_00
+                  #     brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                  #     transition_length: ${transition_length_short}
+                  #     # effect: !lambda "return (id(effects).state);"
+                  #     # red: !lambda "return id(color_red);"
+                  #     # green: !lambda "return id(color_green);"
+                  #     # blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_short).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_01).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_01  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_01_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_01_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_01
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_01_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_01
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_02).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_02  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_02_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_02_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_02
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_02_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_02
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_03).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_03  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_03_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_03_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_03
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_03_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_03
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_04).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_04  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_04_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_04_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_04
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_04_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_04
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_05  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_05_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_05_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_05
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_06  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_06_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_06_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_06
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_07  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_07_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_07_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_07
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_08  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_08_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_08_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_08
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_09  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_09_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_09_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_09
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_10  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_10_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_10_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_10
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_11  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_11_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_11_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_11
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_12  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_12_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_12_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_12
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_13  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_13_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_13_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_13
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_14  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_14_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_14_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_14
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_15  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_15_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_15_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_15
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_16  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_16_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_16_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_16
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+
+  - id: turn_ON_stairs_light_from_16_to_00
+    mode: single
+    then:
+      - if:
+          condition:
+            - script.is_running: turn_ON_stairs_light_from_16_to_12_init
+          then:
+            # - script.wait: turn_ON_stairs_light_from_16_to_12_init
+            - script.stop: turn_ON_stairs_light_from_16_to_12_init
+      - if:
+          condition:
+            or:
+              - binary_sensor.is_on: pir_step_00_init
+              - binary_sensor.is_on: pir_step_01_init
+              - binary_sensor.is_on: pir_step_02_init
+          then:
+            - if:
+                condition:
+                  # - light.is_off: step_16  # when init has already turned on this step
+                  - lambda: 'return id(light_step_16_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_16_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_16
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_short).state;"
+                else:
+                  - globals.set:
+                      id: light_step_16_state
+                      value: '"on"'
+                  # - light.control:
+                  #     id: step_16
+                  #     brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                  #     transition_length: ${transition_length_short}
+                  #     # effect: !lambda "return (id(effects).state);"
+                  #     # red: !lambda "return id(color_red);"
+                  #     # green: !lambda "return id(color_green);"
+                  #     # blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_short).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_15).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_15  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_15_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_15_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_15
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_15_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_15
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_14).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_14  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_14_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_14_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_14
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_14_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_14
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_13).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_13  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_13_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_13_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_13
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_13_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_13
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # or:
+                  # - lambda: 'return (id(step_12).remote_values.get_brightness()) != (id(leds_brightness).state / 100.0);'
+                  # - light.is_off: step_12  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_12_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_12_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_12
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
+                  - globals.set:
+                      id: light_step_12_state
+                      value: '"on"'
+                  - light.control:
+                      id: step_12
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      transition_length: ${transition_length_short}
+                      # effect: !lambda "return (id(effects).state);"
+                      # red: !lambda "return id(color_red);"
+                      # green: !lambda "return id(color_green);"
+                      # blue: !lambda "return id(color_blue);"
+                  # - delay: !lambda "return id(delay_short).state;"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_11  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_11_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_11_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_11
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_10  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_10_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_10_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_10
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_09  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_09_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_09_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_09
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_08  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_08_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_08_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_08
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_07  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_07_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_07_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_07
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_06  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_06_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_06_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_06
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_05  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_05_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_05_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_05
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_04  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_04_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_04_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_04
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_03  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_03_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_03_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_03
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_02  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_02_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_02_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_02
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_01  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_01_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_01_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_01
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+            - if:
+                condition:
+                  # - light.is_off: step_00  # apply delay only if the light is OFF
+                  - lambda: 'return id(light_step_00_state) == "off";'
+                then:
+                  - globals.set:
+                      id: light_step_00_state
+                      value: '"on"'
+                  - light.turn_on:
+                      id: step_00
+                      brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                      effect: !lambda "return (id(effects).state);"
+                      red: !lambda "return id(color_red);"
+                      green: !lambda "return id(color_green);"
+                      blue: !lambda "return id(color_blue);"
+
+  # TURN OFF LIGHTS
+  - id: turn_OFF_stairs_light_from_00_to_16
+    mode: single
+    then:
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_00
+              - lambda: 'return id(light_step_00_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_00_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_00
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_01
+              - lambda: 'return id(light_step_01_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_01_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_01
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_02
+              - lambda: 'return id(light_step_02_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_02_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_02
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_03
+              - lambda: 'return id(light_step_03_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_03_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_03
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_04
+              - lambda: 'return id(light_step_04_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_04_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_04
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_05
+              - lambda: 'return id(light_step_05_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_05_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_05
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_06
+              - lambda: 'return id(light_step_06_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_06_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_06
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_07
+              - lambda: 'return id(light_step_07_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_07_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_07
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_08
+              - lambda: 'return id(light_step_08_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_08_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_08
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_09
+              - lambda: 'return id(light_step_09_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_09_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_09
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_10
+              - lambda: 'return id(light_step_10_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_10_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_10
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_11
+              - lambda: 'return id(light_step_11_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_11_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_11
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_12
+              - lambda: 'return id(light_step_12_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_12_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_12
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_13
+              - lambda: 'return id(light_step_13_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_13_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_13
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_14
+              - lambda: 'return id(light_step_14_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_14_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_14
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_15
+              - lambda: 'return id(light_step_15_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_15_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_15
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_16
+              - lambda: 'return id(light_step_16_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_16_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_16
+
+  - id: turn_OFF_stairs_light_from_16_to_00
+    mode: single
+    then:
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_16
+              - lambda: 'return id(light_step_16_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_16_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_16
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_15
+              - lambda: 'return id(light_step_15_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_15_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_15
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_14
+              - lambda: 'return id(light_step_14_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_14_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_14
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_13
+              - lambda: 'return id(light_step_13_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_13_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_13
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_12
+              - lambda: 'return id(light_step_12_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_12_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_12
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_11
+              - lambda: 'return id(light_step_11_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_11_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_11
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_10
+              - lambda: 'return id(light_step_10_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_10_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_10
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_09
+              - lambda: 'return id(light_step_09_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_09_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_09
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_08
+              - lambda: 'return id(light_step_08_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_08_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_08
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_07
+              - lambda: 'return id(light_step_07_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_07_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_07
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_06
+              - lambda: 'return id(light_step_06_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_06_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_06
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_05
+              - lambda: 'return id(light_step_05_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_05_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_05
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_04
+              - lambda: 'return id(light_step_04_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_04_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_04
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_03
+              - lambda: 'return id(light_step_03_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_03_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_03
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_02
+              - lambda: 'return id(light_step_02_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_02_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_02
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_01
+              - lambda: 'return id(light_step_01_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_01_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_01
+            - delay: !lambda "return id(delay_turnoff).state;"
+      - if:
+          condition:
+            and:
+              # - light.is_on: step_00
+              - lambda: 'return id(light_step_00_state) == "on";'
+              - binary_sensor.is_off: pir_step_00_init
+              - binary_sensor.is_off: pir_step_01_init
+              - binary_sensor.is_off: pir_step_02_init
+          then:
+            - globals.set:
+                id: light_step_00_state
+                value: '"off"'
+            - light.turn_off:
+                id: step_00
+
+  # INIT lights
+  - id: turn_ON_stairs_light_from_16_to_12_init
+    mode: single
+    then:
+      - if:
+          condition:
+            - script.is_running: turn_OFF_stairs_light_from_16_to_00
+          then:
+            - script.stop: turn_OFF_stairs_light_from_16_to_00
+      - if:
+          condition:
+            - script.is_running: turn_OFF_stairs_light_from_00_to_16
+          then:
+            - script.stop: turn_OFF_stairs_light_from_00_to_16
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_15
+              - binary_sensor.is_off: pir_step_14
+              - binary_sensor.is_off: pir_step_13
+              # - light.is_off: step_16  # turn ON light (step_16) only if is it OFF
+              # - light.is_off: step_11  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_16_state) == "off";' # turn ON light (step_16) only if is it OFF
+              - lambda: 'return id(light_step_11_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_16_state
+                value: '"on"'
+            - light.turn_on: # turn ON light (step_16)
+                id: step_16
+                brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_15
+              - binary_sensor.is_off: pir_step_14
+              - binary_sensor.is_off: pir_step_13
+              # - light.is_off: step_15
+              # - light.is_off: step_11  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_15_state) == "off";' # turn ON light (step_15) only if is it OFF
+              - lambda: 'return id(light_step_11_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_15_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_15
+                brightness: !lambda "return (id(leds_brightness).state * 0.8 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_15
+              - binary_sensor.is_off: pir_step_14
+              - binary_sensor.is_off: pir_step_13
+              # - light.is_off: step_14
+              # - light.is_off: step_11  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_14_state) == "off";' # turn ON light (step_14) only if is it OFF
+              - lambda: 'return id(light_step_11_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_14_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_14
+                brightness: !lambda "return (id(leds_brightness).state * 0.6 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_15
+              - binary_sensor.is_off: pir_step_14
+              - binary_sensor.is_off: pir_step_13
+              # - light.is_off: step_13
+              # - light.is_off: step_11  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_13_state) == "off";' # turn ON light (step_13) only if is it OFF
+              - lambda: 'return id(light_step_11_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_13_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_13
+                brightness: !lambda "return (id(leds_brightness).state * 0.35 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_15
+              - binary_sensor.is_off: pir_step_14
+              - binary_sensor.is_off: pir_step_13
+              # - light.is_off: step_12
+              # - light.is_off: step_11  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_12_state) == "off";' # turn ON light (step_12) only if is it OFF
+              - lambda: 'return id(light_step_11_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_12_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_12
+                brightness: !lambda "return (id(leds_brightness).state * 0.15 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+
+  - id: turn_ON_stairs_light_from_00_to_04_init
+    mode: single
+    then:
+      - if:
+          condition:
+            - script.is_running: turn_OFF_stairs_light_from_00_to_16
+          then:
+            - script.stop: turn_OFF_stairs_light_from_00_to_16
+      - if:
+          condition:
+            - script.is_running: turn_OFF_stairs_light_from_16_to_00
+          then:
+            - script.stop: turn_OFF_stairs_light_from_16_to_00
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_01
+              - binary_sensor.is_off: pir_step_02
+              # - light.is_off: step_00  # turn ON light (step_00) only if is it OFF
+              # - light.is_off: step_05  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_00_state) == "off";' # turn ON light (step_00) only if is it OFF
+              - lambda: 'return id(light_step_05_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_00_state
+                value: '"on"'
+            - light.turn_on: # turn ON light (step_00)
+                id: step_00
+                brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_01
+              - binary_sensor.is_off: pir_step_02
+              # - light.is_off: step_01
+              # - light.is_off: step_05  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_01_state) == "off";' # turn ON light (step_01) only if is it OFF
+              - lambda: 'return id(light_step_05_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_01_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_01
+                brightness: !lambda "return (id(leds_brightness).state * 0.8 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_01
+              - binary_sensor.is_off: pir_step_02
+              # - light.is_off: step_02
+              # - light.is_off: step_05  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_02_state) == "off";' # turn ON light (step_02) only if is it OFF
+              - lambda: 'return id(light_step_05_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_02_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_02
+                brightness: !lambda "return (id(leds_brightness).state * 0.6 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_01
+              - binary_sensor.is_off: pir_step_02
+              # - light.is_off: step_03
+              # - light.is_off: step_05  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_03_state) == "off";' # turn ON light (step_03) only if is it OFF
+              - lambda: 'return id(light_step_05_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_03_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_03
+                brightness: !lambda "return (id(leds_brightness).state * 0.35 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
+            - delay: !lambda "return id(delay_short).state;"
+      - if:
+          condition:
+            and:
+              - binary_sensor.is_off: pir_step_01
+              - binary_sensor.is_off: pir_step_02
+              # - light.is_off: step_04
+              # - light.is_off: step_05  # Check one step light before init lights because there can be run lights trigger from the opposite side
+              - lambda: 'return id(light_step_04_state) == "off";' # turn ON light (step_04) only if is it OFF
+              - lambda: 'return id(light_step_05_state) == "off";' # Check one step light before init lights because there can be run lights trigger from the opposite side
+          then:
+            - globals.set:
+                id: light_step_04_state
+                value: '"on"'
+            - light.turn_on:
+                id: step_04
+                brightness: !lambda "return (id(leds_brightness).state * 0.15 / 100.0);"
+                effect: !lambda "return (id(effects).state);"
+                red: !lambda "return id(color_red);"
+                green: !lambda "return id(color_green);"
+                blue: !lambda "return id(color_blue);"
