@@ -108,9 +108,9 @@ esp32:
     type: arduino
 
 logger:
-  # level: ERROR
+  level: VERY_VERBOSE
+  initial_level: ERROR
   # W/A for: Could not allocate memory for JSON document! Requested 708 bytes, largest free heap block: X
-  level: NONE
   baud_rate: 0
 
 api:
