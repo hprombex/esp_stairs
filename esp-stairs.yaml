@@ -123,7 +123,7 @@ ota:
 
 web_server:
   port: 80
-  version: 1
+  version: 2
   auth:
     username: !secret web_server_username
     password: !secret web_server_password
