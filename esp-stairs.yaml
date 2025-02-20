@@ -147,6 +147,29 @@ wifi:
 
 captive_portal:
 
+time:
+  - platform: sntp
+
+sun:
+  latitude: !secret esp_stairs_latitude # eg.: 48.8584°
+  longitude: !secret esp_stairs_longitude # eg.: 2.2945°
+  on_sunrise:
+    - if:
+        condition:
+          - switch.is_on: auto_leds_brightness
+        then:
+          - number.set:
+              id: leds_brightness
+              value: !lambda "return id(leds_brightness_day).state;"
+  on_sunset:
+    - if:
+        condition:
+          - switch.is_on: auto_leds_brightness
+        then:
+          - number.set:
+              id: leds_brightness
+              value: !lambda "return id(leds_brightness_night).state;"
+
 # Global variables to store last_off state and RGB color values, with persistent restoration
 globals:
   - id: last_off
@@ -653,7 +676,7 @@ binary_sensor:
   # PIR 1 - 2
   - platform: gpio
     pin: ${GPIO_S01P}
-    name: pir_step_01
+    name: PIR Step 01
     device_class: motion
     id: pir_step_01
     filters:
@@ -663,7 +686,7 @@ binary_sensor:
 
   - platform: gpio
     pin: ${GPIO_S02P}
-    name: pir_step_02
+    name: PIR Step 02
     device_class: motion
     id: pir_step_02
     filters:
@@ -674,7 +697,7 @@ binary_sensor:
   # PIR 13 - 15
   - platform: gpio
     pin: ${GPIO_S13P}
-    name: pir_step_13
+    name: PIR Step 13
     device_class: motion
     id: pir_step_13
     filters:
@@ -684,7 +707,7 @@ binary_sensor:
 
   - platform: gpio
     pin: ${GPIO_S14P}
-    name: pir_step_14
+    name: PIR Step 14
     device_class: motion
     id: pir_step_14
     filters:
@@ -694,7 +717,7 @@ binary_sensor:
 
   - platform: gpio
     pin: ${GPIO_S15P}
-    name: pir_step_15
+    name: PIR Step 15
     device_class: motion
     id: pir_step_15
     filters:
@@ -744,7 +767,7 @@ sensor:
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
     name: WiFi Signal dB
     id: wifi_signal_db
-    update_interval: 60s
+    update_interval: 120s
     unit_of_measurement: "dB"
     entity_category: diagnostic
 
@@ -774,11 +797,17 @@ button:
       - lambda: return esp_restart();
 
 switch:
-  platform: template
-  id: auto_lights
-  name: Auto Lights
-  optimistic: True
-  restore_mode: RESTORE_DEFAULT_ON
+  - platform: template
+    id: auto_lights
+    name: Auto Lights
+    optimistic: True
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: template
+    id: auto_leds_brightness
+    name: Auto Leds Brightness
+    optimistic: True
+    restore_mode: RESTORE_DEFAULT_OFF
 
 number:
   - platform: template
@@ -791,6 +820,28 @@ number:
     restore_value: True
     optimistic: True
     initial_value: 100
+
+  - platform: template
+    name: Leds Brightness Day
+    id: leds_brightness_day
+    min_value: 0
+    max_value: 100
+    step: 1
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 70
+
+  - platform: template
+    name: Leds Brightness Night
+    id: leds_brightness_night
+    min_value: 0
+    max_value: 100
+    step: 1
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 20
 
   - platform: template
     name: Delay Short
