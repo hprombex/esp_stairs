@@ -1,4 +1,8 @@
 select:
+  - platform: logger
+    id: logger_select
+    name: Logger Level
+
   - platform: template
     name: Effects
     id: effects
