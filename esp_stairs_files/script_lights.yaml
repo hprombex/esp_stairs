@@ -31,8 +31,9 @@ script:
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
                   - delay: !lambda "return id(delay_short).state;"
-            - delay: !lambda "return id(delay_short).state;"
             - if:
                 condition:
                   # or:
@@ -357,8 +358,9 @@ script:
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
+                  - delay: !lambda "return id(delay_long).state;"
+                else:
                   - delay: !lambda "return id(delay_short).state;"
-            - delay: !lambda "return id(delay_short).state;"
             - if:
                 condition:
                   # or:
