@@ -147,6 +147,9 @@ wifi:
 
 captive_portal:
 
+debug:
+  update_interval: 5s
+
 time:
   - platform: sntp
 
@@ -733,36 +736,51 @@ binary_sensor:
 
   # DEBUG BINARY SENSORS
   - platform: template
-    name: "turn_ON_stairs_light_from_00_to_16 script running"
+    name: "DEBUG - turn_ON_stairs_light_from_00_to_16 script running"
     lambda: |-
       return id(turn_ON_stairs_light_from_00_to_16).is_running();
 
   - platform: template
-    name: "turn_ON_stairs_light_from_16_to_00 script running"
+    name: "DEBUG - turn_ON_stairs_light_from_16_to_00 script running"
     lambda: |-
       return id(turn_ON_stairs_light_from_16_to_00).is_running();
 
   - platform: template
-    name: "turn_OFF_stairs_light_from_00_to_16 script running"
+    name: "DEBUG - turn_OFF_stairs_light_from_00_to_16 script running"
     lambda: |-
       return id(turn_OFF_stairs_light_from_00_to_16).is_running();
 
   - platform: template
-    name: "turn_OFF_stairs_light_from_16_to_00 script running"
+    name: "DEBUG - turn_OFF_stairs_light_from_16_to_00 script running"
     lambda: |-
       return id(turn_OFF_stairs_light_from_16_to_00).is_running();
 
   - platform: template
-    name: "turn_ON_stairs_light_from_16_to_12_init script running"
+    name: "DEBUG - turn_ON_stairs_light_from_16_to_12_init script running"
     lambda: |-
       return id(turn_ON_stairs_light_from_16_to_12_init).is_running();
 
   - platform: template
-    name: "turn_ON_stairs_light_from_00_to_04_init script running"
+    name: "DEBUG - turn_ON_stairs_light_from_00_to_04_init script running"
     lambda: |-
       return id(turn_ON_stairs_light_from_00_to_04_init).is_running();
 
+# DEBUG
+text_sensor:
+  - platform: debug
+    device:
+      name: "DEBUG - Device Info"
+    reset_reason:
+      name: "DEBUG - Reset Reason"
+
 sensor:
+  - platform: debug
+    free:
+      name: "DEBUG - Heap Free"
+    loop_time:
+      name: "DEBUG - Loop Time"
+
+
   - platform: uptime
     name: Uptime
     id: esp_uptime
