@@ -178,6 +178,12 @@ globals:
     max_restore_data_length: 24
     initial_value: '""' # Last state before turning off
 
+  - id: full_load
+    type: std::string
+    restore_value: yes
+    max_restore_data_length: 24
+    initial_value: '"off"' # on or off
+
   - id: color_red
     type: float
     restore_value: yes

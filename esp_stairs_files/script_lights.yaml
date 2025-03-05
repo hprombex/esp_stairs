@@ -7,7 +7,6 @@ script:
           condition:
             - script.is_running: turn_ON_stairs_light_from_00_to_04_init
           then:
-            # - script.wait: turn_ON_stairs_light_from_00_to_04_init
             - script.stop: turn_ON_stairs_light_from_00_to_04_init
       - if:
           condition:
@@ -18,7 +17,6 @@ script:
           then:
             - if:
                 condition:
-                  # - light.is_off: step_00  # when init has already turned on this step
                   - lambda: 'return id(light_step_00_state) == "off";'
                 then:
                   - globals.set:
@@ -327,6 +325,11 @@ script:
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
                       transition_length: ${transition_length_short}
 
+            # Mark all lights are ON by setting 'full_load' to "on".
+            - globals.set:
+                id: full_load
+                value: '"on"'
+
   - id: turn_ON_stairs_light_from_16_to_00
     mode: single
     then:
@@ -334,7 +337,6 @@ script:
           condition:
             - script.is_running: turn_ON_stairs_light_from_16_to_12_init
           then:
-            # - script.wait: turn_ON_stairs_light_from_16_to_12_init
             - script.stop: turn_ON_stairs_light_from_16_to_12_init
       - if:
           condition:
@@ -345,7 +347,6 @@ script:
           then:
             - if:
                 condition:
-                  # - light.is_off: step_16  # when init has already turned on this step
                   - lambda: 'return id(light_step_16_state) == "off";'
                 then:
                   - globals.set:
@@ -651,6 +652,11 @@ script:
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
                       transition_length: ${transition_length_short}
 
+            # Mark all lights are ON by setting 'full_load' to "on".
+            - globals.set:
+                id: full_load
+                value: '"on"'
+
   # TURN OFF LIGHTS
   - id: turn_OFF_stairs_light_from_00_to_16
     mode: single
@@ -658,7 +664,6 @@ script:
       - if:
           condition:
             and:
-              # - light.is_on: step_00
               - lambda: 'return id(light_step_00_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -670,10 +675,10 @@ script:
             - light.turn_off:
                 id: step_00
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_01
               - lambda: 'return id(light_step_01_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -685,10 +690,10 @@ script:
             - light.turn_off:
                 id: step_01
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_02
               - lambda: 'return id(light_step_02_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -700,10 +705,10 @@ script:
             - light.turn_off:
                 id: step_02
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_03
               - lambda: 'return id(light_step_03_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -715,10 +720,10 @@ script:
             - light.turn_off:
                 id: step_03
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_04
               - lambda: 'return id(light_step_04_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -730,10 +735,10 @@ script:
             - light.turn_off:
                 id: step_04
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_05
               - lambda: 'return id(light_step_05_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -745,10 +750,10 @@ script:
             - light.turn_off:
                 id: step_05
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_06
               - lambda: 'return id(light_step_06_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -760,10 +765,10 @@ script:
             - light.turn_off:
                 id: step_06
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_07
               - lambda: 'return id(light_step_07_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -775,10 +780,10 @@ script:
             - light.turn_off:
                 id: step_07
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_08
               - lambda: 'return id(light_step_08_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -790,10 +795,10 @@ script:
             - light.turn_off:
                 id: step_08
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_09
               - lambda: 'return id(light_step_09_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -805,10 +810,10 @@ script:
             - light.turn_off:
                 id: step_09
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_10
               - lambda: 'return id(light_step_10_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -820,10 +825,10 @@ script:
             - light.turn_off:
                 id: step_10
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_11
               - lambda: 'return id(light_step_11_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -835,10 +840,10 @@ script:
             - light.turn_off:
                 id: step_11
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_12
               - lambda: 'return id(light_step_12_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -850,10 +855,10 @@ script:
             - light.turn_off:
                 id: step_12
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_13
               - lambda: 'return id(light_step_13_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -865,10 +870,10 @@ script:
             - light.turn_off:
                 id: step_13
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_14
               - lambda: 'return id(light_step_14_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -880,10 +885,10 @@ script:
             - light.turn_off:
                 id: step_14
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_15
               - lambda: 'return id(light_step_15_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -895,10 +900,10 @@ script:
             - light.turn_off:
                 id: step_15
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_16
               - lambda: 'return id(light_step_16_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -909,6 +914,11 @@ script:
                 value: '"off"'
             - light.turn_off:
                 id: step_16
+
+      # Mark all lights are OFF by setting 'full_load' to "off".
+      - globals.set:
+          id: full_load
+          value: '"off"'
 
   - id: turn_OFF_stairs_light_from_16_to_00
     mode: single
@@ -916,7 +926,6 @@ script:
       - if:
           condition:
             and:
-              # - light.is_on: step_16
               - lambda: 'return id(light_step_16_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -928,10 +937,10 @@ script:
             - light.turn_off:
                 id: step_16
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_15
               - lambda: 'return id(light_step_15_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -943,10 +952,10 @@ script:
             - light.turn_off:
                 id: step_15
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_14
               - lambda: 'return id(light_step_14_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -958,10 +967,10 @@ script:
             - light.turn_off:
                 id: step_14
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_13
               - lambda: 'return id(light_step_13_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -973,10 +982,10 @@ script:
             - light.turn_off:
                 id: step_13
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_12
               - lambda: 'return id(light_step_12_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -988,10 +997,10 @@ script:
             - light.turn_off:
                 id: step_12
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_11
               - lambda: 'return id(light_step_11_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1003,10 +1012,10 @@ script:
             - light.turn_off:
                 id: step_11
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_10
               - lambda: 'return id(light_step_10_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1018,10 +1027,10 @@ script:
             - light.turn_off:
                 id: step_10
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_09
               - lambda: 'return id(light_step_09_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1033,10 +1042,10 @@ script:
             - light.turn_off:
                 id: step_09
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_08
               - lambda: 'return id(light_step_08_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1048,10 +1057,10 @@ script:
             - light.turn_off:
                 id: step_08
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_07
               - lambda: 'return id(light_step_07_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1063,10 +1072,10 @@ script:
             - light.turn_off:
                 id: step_07
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_06
               - lambda: 'return id(light_step_06_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1078,10 +1087,10 @@ script:
             - light.turn_off:
                 id: step_06
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_05
               - lambda: 'return id(light_step_05_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1093,10 +1102,10 @@ script:
             - light.turn_off:
                 id: step_05
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_04
               - lambda: 'return id(light_step_04_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1108,10 +1117,10 @@ script:
             - light.turn_off:
                 id: step_04
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_03
               - lambda: 'return id(light_step_03_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1123,10 +1132,10 @@ script:
             - light.turn_off:
                 id: step_03
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_02
               - lambda: 'return id(light_step_02_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1138,10 +1147,10 @@ script:
             - light.turn_off:
                 id: step_02
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_01
               - lambda: 'return id(light_step_01_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1153,10 +1162,10 @@ script:
             - light.turn_off:
                 id: step_01
             - delay: !lambda "return id(delay_turnoff).state;"
+      - script.execute: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
       - if:
           condition:
             and:
-              # - light.is_on: step_00
               - lambda: 'return id(light_step_00_state) == "on";'
               - binary_sensor.is_off: pir_step_00_init
               - binary_sensor.is_off: pir_step_01_init
@@ -1168,20 +1177,25 @@ script:
             - light.turn_off:
                 id: step_00
 
+      # Mark all lights are OFF by setting 'full_load' to "off".
+      - globals.set:
+          id: full_load
+          value: '"off"'
+
   # INIT lights
   - id: turn_ON_stairs_light_from_16_to_12_init
     mode: single
     then:
-      - if:
-          condition:
-            - script.is_running: turn_OFF_stairs_light_from_16_to_00
-          then:
-            - script.stop: turn_OFF_stairs_light_from_16_to_00
-      - if:
-          condition:
-            - script.is_running: turn_OFF_stairs_light_from_00_to_16
-          then:
-            - script.stop: turn_OFF_stairs_light_from_00_to_16
+      # - if:
+      #     condition:
+      #       - script.is_running: turn_OFF_stairs_light_from_16_to_00
+      #     then:
+      #       - script.stop: turn_OFF_stairs_light_from_16_to_00
+      # - if:
+      #     condition:
+      #       - script.is_running: turn_OFF_stairs_light_from_00_to_16
+      #     then:
+      #       - script.stop: turn_OFF_stairs_light_from_00_to_16
       - if:
           condition:
             and:
@@ -1295,16 +1309,16 @@ script:
   - id: turn_ON_stairs_light_from_00_to_04_init
     mode: single
     then:
-      - if:
-          condition:
-            - script.is_running: turn_OFF_stairs_light_from_00_to_16
-          then:
-            - script.stop: turn_OFF_stairs_light_from_00_to_16
-      - if:
-          condition:
-            - script.is_running: turn_OFF_stairs_light_from_16_to_00
-          then:
-            - script.stop: turn_OFF_stairs_light_from_16_to_00
+      # - if:
+      #     condition:
+      #       - script.is_running: turn_OFF_stairs_light_from_00_to_16
+      #     then:
+      #       - script.stop: turn_OFF_stairs_light_from_00_to_16
+      # - if:
+      #     condition:
+      #       - script.is_running: turn_OFF_stairs_light_from_16_to_00
+      #     then:
+      #       - script.stop: turn_OFF_stairs_light_from_16_to_00
       - if:
           condition:
             and:
@@ -1409,3 +1423,39 @@ script:
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
+
+# Turn on lights from 00 to 16 if motion is detected and full_load is on, stop turning lights off
+  - id: check_turn_ON_00_to_16_stop_turn_OFF_16_to_00
+    mode: single
+    then:
+      - if:
+          condition:
+            or:
+              - binary_sensor.is_on: pir_step_00_init
+              - binary_sensor.is_on: pir_step_01_init
+              - binary_sensor.is_on: pir_step_02_init
+          then:
+            - if:
+                condition:
+                  - lambda: 'return id(full_load) == "on";'
+                then:
+                  - script.execute: turn_ON_stairs_light_from_00_to_16
+                  - script.stop: turn_OFF_stairs_light_from_16_to_00
+
+# Turn on lights from 16 to 00 if motion is detected and full_load is on, stop turning lights off
+  - id: check_turn_ON_16_to_00_stop_turn_OFF_16_to_00
+    mode: single
+    then:
+      - if:
+          condition:
+            or:
+              - binary_sensor.is_on: pir_step_00_init
+              - binary_sensor.is_on: pir_step_01_init
+              - binary_sensor.is_on: pir_step_02_init
+          then:
+            - if:
+                condition:
+                  - lambda: 'return id(full_load) == "on";'
+                then:
+                  - script.execute: turn_ON_stairs_light_from_16_to_00
+                  - script.stop: turn_OFF_stairs_light_from_00_to_16
