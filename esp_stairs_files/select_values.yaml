@@ -5,6 +5,7 @@ select:
 
   - platform: template
     name: Effects
+    entity_category: config
     id: effects
     optimistic: true
     options:
@@ -27,6 +28,7 @@ select:
 
   - platform: template
     name: Color
+    entity_category: config
     id: color
     optimistic: true
     restore_value: true
