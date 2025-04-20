@@ -737,31 +737,37 @@ binary_sensor:
   # DEBUG BINARY SENSORS
   - platform: template
     name: "DEBUG - turn_ON_stairs_light_from_00_to_16 script running"
+    entity_category: diagnostic
     lambda: |-
       return id(turn_ON_stairs_light_from_00_to_16).is_running();
 
   - platform: template
     name: "DEBUG - turn_ON_stairs_light_from_16_to_00 script running"
+    entity_category: diagnostic
     lambda: |-
       return id(turn_ON_stairs_light_from_16_to_00).is_running();
 
   - platform: template
     name: "DEBUG - turn_OFF_stairs_light_from_00_to_16 script running"
+    entity_category: diagnostic
     lambda: |-
       return id(turn_OFF_stairs_light_from_00_to_16).is_running();
 
   - platform: template
     name: "DEBUG - turn_OFF_stairs_light_from_16_to_00 script running"
+    entity_category: diagnostic
     lambda: |-
       return id(turn_OFF_stairs_light_from_16_to_00).is_running();
 
   - platform: template
     name: "DEBUG - turn_ON_stairs_light_from_16_to_12_init script running"
+    entity_category: diagnostic
     lambda: |-
       return id(turn_ON_stairs_light_from_16_to_12_init).is_running();
 
   - platform: template
     name: "DEBUG - turn_ON_stairs_light_from_00_to_04_init script running"
+    entity_category: diagnostic
     lambda: |-
       return id(turn_ON_stairs_light_from_00_to_04_init).is_running();
 
@@ -777,9 +783,10 @@ sensor:
   - platform: debug
     free:
       name: "DEBUG - Heap Free"
+    block:
+      name: "DEBUG - Heap Max Block"
     loop_time:
       name: "DEBUG - Loop Time"
-
 
   - platform: uptime
     name: Uptime
@@ -790,31 +797,32 @@ sensor:
 
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
     name: WiFi Signal dB
+    entity_category: diagnostic
     id: wifi_signal_db
     update_interval: 120s
     unit_of_measurement: "dB"
-    entity_category: diagnostic
 
   - platform: copy # Reports the WiFi signal strength in %
     source_id: wifi_signal_db
+    entity_category: diagnostic
     name: WiFi Signal Percent
     filters:
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
     unit_of_measurement: "%"
-    entity_category: diagnostic
 
   - platform: template
+    entity_category: diagnostic
     id: cpu_temperature
     name: CPU temperature
     unit_of_measurement: "°C"
     device_class: "temperature"
     state_class: "measurement"
     lambda: return temperatureRead();
-    entity_category: diagnostic
 
 button:
   - platform: template
     name: Reboot
+    entity_category: config
     id: reboot_button
     icon: mdi:restart
     on_press:
@@ -836,6 +844,7 @@ switch:
 number:
   - platform: template
     name: Leds Brightness
+    entity_category: config
     id: leds_brightness
     min_value: 0
     max_value: 100
@@ -847,6 +856,7 @@ number:
 
   - platform: template
     name: Leds Brightness Day
+    entity_category: config
     id: leds_brightness_day
     min_value: 0
     max_value: 100
@@ -858,6 +868,7 @@ number:
 
   - platform: template
     name: Leds Brightness Night
+    entity_category: config
     id: leds_brightness_night
     min_value: 0
     max_value: 100
@@ -869,6 +880,7 @@ number:
 
   - platform: template
     name: Delay Short
+    entity_category: config
     id: delay_short
     min_value: 5
     max_value: 1000
@@ -881,6 +893,7 @@ number:
 
   - platform: template
     name: Delay Long
+    entity_category: config
     id: delay_long
     min_value: 5
     max_value: 1000
@@ -893,6 +906,7 @@ number:
 
   - platform: template
     name: Delay Turn Off
+    entity_category: config
     id: delay_turnoff
     min_value: 0
     max_value: 1000
@@ -905,6 +919,7 @@ number:
 
   - platform: template
     name: Delay Off Init PIR
+    entity_category: config
     id: delay_off_init_pir
     min_value: 5
     max_value: 1000
