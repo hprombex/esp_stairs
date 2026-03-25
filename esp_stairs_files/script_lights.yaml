@@ -25,7 +25,7 @@ script:
                   - light.turn_on:
                       id: step_00
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -44,7 +44,7 @@ script:
                   - light.turn_on:
                       id: step_01
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -66,7 +66,7 @@ script:
                   - light.turn_on:
                       id: step_02
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -88,7 +88,7 @@ script:
                   - light.turn_on:
                       id: step_03
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -110,7 +110,7 @@ script:
                   - light.turn_on:
                       id: step_04
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -130,7 +130,7 @@ script:
                   - light.turn_on:
                       id: step_05
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -145,7 +145,7 @@ script:
                   - light.turn_on:
                       id: step_06
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -160,7 +160,7 @@ script:
                   - light.turn_on:
                       id: step_07
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -175,7 +175,7 @@ script:
                   - light.turn_on:
                       id: step_08
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -190,7 +190,7 @@ script:
                   - light.turn_on:
                       id: step_09
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -205,7 +205,7 @@ script:
                   - light.turn_on:
                       id: step_10
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -220,7 +220,7 @@ script:
                   - light.turn_on:
                       id: step_11
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -235,7 +235,7 @@ script:
                   - light.turn_on:
                       id: step_12
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -255,7 +255,7 @@ script:
                   - light.turn_on:
                       id: step_13
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -275,7 +275,7 @@ script:
                   - light.turn_on:
                       id: step_14
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -295,7 +295,7 @@ script:
                   - light.turn_on:
                       id: step_15
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -315,7 +315,7 @@ script:
                   - light.turn_on:
                       id: step_16
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -355,7 +355,7 @@ script:
                   - light.turn_on:
                       id: step_16
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -374,7 +374,7 @@ script:
                   - light.turn_on:
                       id: step_15
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -396,7 +396,7 @@ script:
                   - light.turn_on:
                       id: step_14
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -418,7 +418,7 @@ script:
                   - light.turn_on:
                       id: step_13
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -440,7 +440,7 @@ script:
                   - light.turn_on:
                       id: step_12
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -460,7 +460,7 @@ script:
                   - light.turn_on:
                       id: step_11
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -475,7 +475,7 @@ script:
                   - light.turn_on:
                       id: step_10
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -490,7 +490,7 @@ script:
                   - light.turn_on:
                       id: step_09
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -505,7 +505,7 @@ script:
                   - light.turn_on:
                       id: step_08
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -520,7 +520,7 @@ script:
                   - light.turn_on:
                       id: step_07
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -535,7 +535,7 @@ script:
                   - light.turn_on:
                       id: step_06
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -550,7 +550,7 @@ script:
                   - light.turn_on:
                       id: step_05
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -565,7 +565,7 @@ script:
                   - light.turn_on:
                       id: step_04
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -585,7 +585,7 @@ script:
                   - light.turn_on:
                       id: step_03
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -605,7 +605,7 @@ script:
                   - light.turn_on:
                       id: step_02
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -625,7 +625,7 @@ script:
                   - light.turn_on:
                       id: step_01
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -645,7 +645,7 @@ script:
                   - light.turn_on:
                       id: step_00
                       brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                      effect: !lambda "return (id(effects).state);"
+                      effect: !lambda "return (id(effects).current_option());"
                       red: !lambda "return id(color_red);"
                       green: !lambda "return id(color_green);"
                       blue: !lambda "return id(color_blue);"
@@ -1216,7 +1216,7 @@ script:
             - light.turn_on: # turn ON light (step_16)
                 id: step_16
                 brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1238,7 +1238,7 @@ script:
             - light.turn_on:
                 id: step_15
                 brightness: !lambda "return (id(leds_brightness).state * 0.8 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1260,7 +1260,7 @@ script:
             - light.turn_on:
                 id: step_14
                 brightness: !lambda "return (id(leds_brightness).state * 0.6 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1282,7 +1282,7 @@ script:
             - light.turn_on:
                 id: step_13
                 brightness: !lambda "return (id(leds_brightness).state * 0.35 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1304,7 +1304,7 @@ script:
             - light.turn_on:
                 id: step_12
                 brightness: !lambda "return (id(leds_brightness).state * 0.15 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1338,7 +1338,7 @@ script:
             - light.turn_on: # turn ON light (step_00)
                 id: step_00
                 brightness: !lambda "return (id(leds_brightness).state / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1359,7 +1359,7 @@ script:
             - light.turn_on:
                 id: step_01
                 brightness: !lambda "return (id(leds_brightness).state * 0.8 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1380,7 +1380,7 @@ script:
             - light.turn_on:
                 id: step_02
                 brightness: !lambda "return (id(leds_brightness).state * 0.6 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1401,7 +1401,7 @@ script:
             - light.turn_on:
                 id: step_03
                 brightness: !lambda "return (id(leds_brightness).state * 0.35 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"
@@ -1422,7 +1422,7 @@ script:
             - light.turn_on:
                 id: step_04
                 brightness: !lambda "return (id(leds_brightness).state * 0.15 / 100.0);"
-                effect: !lambda "return (id(effects).state);"
+                effect: !lambda "return (id(effects).current_option());"
                 red: !lambda "return id(color_red);"
                 green: !lambda "return id(color_green);"
                 blue: !lambda "return id(color_blue);"

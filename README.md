@@ -2,7 +2,7 @@
 # 🌈 ESP_Stairs - Stairs Lighting Automation Project 🌈
 
 
-## ⚠️ <span style="color: red;">ESPHome 2025.2.0 or later is required for proper functionality.</span> ⚠️ 
+## ⚠️ <span style="color: red;">ESPHome 2026.1.4 or later is required for proper functionality.</span> ⚠️ 
 
 ## 📋 Project Overview
 This repository contains the code and resources for automating stairs lighting using ESP32 and WS2812b LEDs.
@@ -83,6 +83,7 @@ esp_stairs_ota_password: "<OTA Password>"
 esp_stairs_ip: "<Static IP Address>"
 esp_stairs_latitude: 48.8584°
 esp_stairs_longitude: 2.2945°
+default_web_server_version: "3"
 ```
 
 ---

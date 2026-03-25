@@ -1,4 +1,16 @@
 substitutions:
+  device_name: esp-stairs
+  friendly_name: esp_stairs
+
+  device_description: "ESP_Stairs - Stairs Lighting Automation Project"
+  projectname: "hprombex. Stairs Lighting Automation Project"
+  appversion: "1.0.5"
+
+  log_level: "ERROR" # not that logging need memory, so in production mode use "WARN"
+  log_baudrate: "0" # 0 disable uart logger messages
+
+  web_server_version: !secret default_web_server_version
+
   transition_length: 0.7s
   transition_length_short: 0.2s
 
@@ -6,7 +18,7 @@ substitutions:
   delayedoff: 100ms
   delayed_onoff: 100ms # old 60ms
 
-  led_type: WS2812X
+  led_type: WS2812X # neopixelbus
   led_fixed_gamma: "1.0"
   led_count: "714" # Number of LEDs
 
@@ -79,8 +91,11 @@ substitutions:
   GPIO_SA02P: GPIO14 #D14
 
 esphome:
-  name: esp-stairs
-  friendly_name: esp_stairs
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  project:
+    name: ${projectname}
+    version: ${appversion}
   on_boot:
     then:
       - light.turn_off: step_00
@@ -104,26 +119,32 @@ esphome:
 
 esp32:
   board: esp32dev
+  cpu_frequency: 240MHZ # Boost CPU frequency to 240MHz
   framework:
     type: arduino
 
+preferences:
+  flash_write_interval: 10min # Reduce flash write interval to 10 minutes
+
 logger:
   level: VERY_VERBOSE
-  initial_level: ERROR
+  initial_level: ${log_level}
+  baud_rate: ${log_baudrate}
   # W/A for: Could not allocate memory for JSON document! Requested 708 bytes, largest free heap block: X
-  baud_rate: 0
 
 api:
+  reboot_timeout: 0s
   encryption:
     key: !secret esp_stairs_api_key
 
 ota:
+  - platform: web_server
   - platform: esphome
     password: !secret esp_stairs_ota_password
 
 web_server:
   port: 80
-  version: 2
+  version: ${web_server_version}
   auth:
     username: !secret web_server_username
     password: !secret web_server_password
@@ -133,22 +154,23 @@ wifi:
   password: !secret wifi_password
   fast_connect: True
   power_save_mode: none
-  reboot_timeout: 0s
-
+  reboot_timeout: 60min
+  min_auth_mode: WPA2
   manual_ip:
     static_ip: !secret esp_stairs_ip
-    gateway: 10.10.51.1
-    subnet: 255.255.255.0
-    dns1: 10.10.51.1
+    gateway: !secret gateway
+    subnet: !secret subnet
+    dns1: !secret dns1
 
   ap:
-    ssid: "Esp-Stairs Fallback Hotspot"
+    ssid: ${friendly_name}
     password: !secret wifi_password_backup
+    ap_timeout: 60min
 
 captive_portal:
 
 debug:
-  update_interval: 5s
+  update_interval: 120s
 
 time:
   - platform: sntp
@@ -164,6 +186,13 @@ sun:
           - number.set:
               id: leds_brightness
               value: !lambda "return id(leds_brightness_day).state;"
+    - if:
+        condition:
+          - switch.is_on: auto_delay_off_init_pir
+        then:
+          - number.set:
+              id: delay_off_init_pir
+              value: !lambda "return id(delay_off_init_pir_day).state;"
   on_sunset:
     - if:
         condition:
@@ -172,6 +201,13 @@ sun:
           - number.set:
               id: leds_brightness
               value: !lambda "return id(leds_brightness_night).state;"
+    - if:
+        condition:
+          - switch.is_on: auto_delay_off_init_pir
+        then:
+          - number.set:
+              id: delay_off_init_pir
+              value: !lambda "return id(delay_off_init_pir_night).state;"
 
 # Global variables to store last_off state and RGB color values, with persistent restoration
 globals:
@@ -508,286 +544,13 @@ light:
         to: ${step_16_end}
     effects: !include esp_stairs_files/effects.yaml
 
-binary_sensor:
-  - platform: gpio # PIR init 0
-    name: PIR init Step 00
-    id: pir_step_00_init
-    pin: ${GPIO_SA00P}
-    device_class: motion
-    filters:
-      - delayed_off: !lambda "return (id(delay_off_init_pir).state * 1000) - 500;"
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-    on_press: # Motion detected
-      then:
-        - if:
-            condition:
-              - switch.is_on: auto_lights
-            then:
-              - if:
-                  condition:
-                    and:
-                      # - light.is_off: step_00
-                      # - light.is_off: step_01
-                      # - light.is_off: step_02
-                      # - light.is_off: step_03
-                      # - light.is_off: step_04
-                      - lambda: 'return id(light_step_04_state) == "off";'
-                  then:
-                    - wait_until: # TODO check this
-                        condition:
-                          # light.is_off: step_11  # Check if step_11 is off
-                          lambda: 'return id(light_step_11_state) == "off";'
-                        timeout: 50ms
-                    - script.execute: turn_ON_stairs_light_from_00_to_04_init
-              - wait_until:
-                  condition:
-                    lambda: "return (id(pir_step_01).state || id(pir_step_02).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
-              - script.execute: turn_ON_stairs_light_from_00_to_16
-    on_release:
-      then:
-        - if:
-            condition:
-              - switch.is_on: auto_lights
-            then:
-              - globals.set:
-                  id: last_off
-                  value: '"pir_step_01_init"'
-              - delay: 100ms
-              - wait_until:
-                  condition:
-                    and:
-                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
-                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
-                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
-              - delay: 100ms
-              - if:
-                  condition:
-                    lambda: 'return id(last_off) == "pir_step_01_init";'
-                  then:
-                    - script.execute: turn_OFF_stairs_light_from_16_to_00
-
-  - platform: gpio # PIR init 1
-    name: PIR init Step 01
-    id: pir_step_01_init
-    pin: ${GPIO_SA01P}
-    device_class: motion
-    filters:
-      - delayed_off: !lambda "return id(delay_off_init_pir).state * 1000;"
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-    on_press:
-      then:
-        - if:
-            condition:
-              - switch.is_on: auto_lights
-            then:
-              - if:
-                  condition:
-                    and:
-                      # - light.is_off: step_00
-                      # - light.is_off: step_01
-                      # - light.is_off: step_02
-                      # - light.is_off: step_03
-                      # - light.is_off: step_04
-                      - lambda: 'return id(light_step_04_state) == "off";'
-                  then:
-                    - wait_until: # TODO check this
-                        condition:
-                          # light.is_off: step_11  # Check if step_11 is off
-                          lambda: 'return id(light_step_11_state) == "off";'
-                        timeout: 50ms
-                    - script.execute: turn_ON_stairs_light_from_00_to_04_init
-              - wait_until:
-                  condition:
-                    lambda: "return (id(pir_step_01).state || id(pir_step_02).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
-              - script.execute: turn_ON_stairs_light_from_00_to_16
-    on_release:
-      then:
-        - if:
-            condition:
-              - switch.is_on: auto_lights
-            then:
-              - globals.set:
-                  id: last_off
-                  value: '"pir_step_01_init"'
-              - delay: 100ms
-              - wait_until:
-                  condition:
-                    and:
-                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
-                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
-                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
-              - delay: 100ms
-              - if:
-                  condition:
-                    lambda: 'return id(last_off) == "pir_step_01_init";'
-                  then:
-                    - script.execute: turn_OFF_stairs_light_from_16_to_00
-
-  - platform: gpio # PIR init 2
-    name: PIR init Step 02
-    id: pir_step_02_init
-    pin: ${GPIO_SA02P}
-    device_class: motion
-    filters:
-      - delayed_off: !lambda "return id(delay_off_init_pir).state * 1000;"
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-    on_press:
-      then:
-        - if:
-            condition:
-              - switch.is_on: auto_lights
-            then:
-              - if:
-                  condition:
-                    and:
-                      # - light.is_off: step_16
-                      # - light.is_off: step_14
-                      # - light.is_off: step_13
-                      # - light.is_off: step_12
-                      - lambda: 'return id(light_step_12_state) == "off";'
-                  then:
-                    - wait_until: # TODO check this
-                        condition:
-                          # light.is_off: step_05  # Check if step_05 is off
-                          lambda: 'return id(light_step_05_state) == "off";'
-                        timeout: 50ms
-                    - script.execute: turn_ON_stairs_light_from_16_to_12_init
-              - wait_until:
-                  condition:
-                    lambda: "return (id(pir_step_15).state || id(pir_step_14).state || id(pir_step_13).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
-              - script.execute: turn_ON_stairs_light_from_16_to_00
-    on_release:
-      then:
-        - if:
-            condition:
-              - switch.is_on: auto_lights
-            then:
-              - globals.set:
-                  id: last_off
-                  value: '"pir_step_02_init"'
-              - delay: 100ms
-              - wait_until:
-                  condition:
-                    and:
-                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
-                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
-                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
-              - delay: 100ms
-              - if:
-                  condition:
-                    lambda: 'return id(last_off) == "pir_step_02_init";'
-                  then:
-                    - script.execute: turn_OFF_stairs_light_from_00_to_16
-
-  # PIR 1 - 2
-  - platform: gpio
-    pin: ${GPIO_S01P}
-    name: PIR Step 01
-    device_class: motion
-    id: pir_step_01
-    filters:
-      - delayed_off: ${delayedoff}
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-
-  - platform: gpio
-    pin: ${GPIO_S02P}
-    name: PIR Step 02
-    device_class: motion
-    id: pir_step_02
-    filters:
-      - delayed_off: ${delayedoff}
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-
-  # PIR 13 - 15
-  - platform: gpio
-    pin: ${GPIO_S13P}
-    name: PIR Step 13
-    device_class: motion
-    id: pir_step_13
-    filters:
-      #- delayed_off: ${delayedoff}
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-
-  - platform: gpio
-    pin: ${GPIO_S14P}
-    name: PIR Step 14
-    device_class: motion
-    id: pir_step_14
-    filters:
-      #- delayed_off: ${delayedoff}
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-
-  - platform: gpio
-    pin: ${GPIO_S15P}
-    name: PIR Step 15
-    device_class: motion
-    id: pir_step_15
-    filters:
-      #- delayed_off: ${delayedoff}
-      - delayed_on: ${delayedon}
-      - delayed_on_off: ${delayed_onoff}
-
-  # DEBUG BINARY SENSORS
-  - platform: template
-    name: "DEBUG - turn_ON_stairs_light_from_00_to_16 script running"
-    entity_category: diagnostic
-    lambda: |-
-      return id(turn_ON_stairs_light_from_00_to_16).is_running();
-
-  - platform: template
-    name: "DEBUG - turn_ON_stairs_light_from_16_to_00 script running"
-    entity_category: diagnostic
-    lambda: |-
-      return id(turn_ON_stairs_light_from_16_to_00).is_running();
-
-  - platform: template
-    name: "DEBUG - turn_OFF_stairs_light_from_00_to_16 script running"
-    entity_category: diagnostic
-    lambda: |-
-      return id(turn_OFF_stairs_light_from_00_to_16).is_running();
-
-  - platform: template
-    name: "DEBUG - turn_OFF_stairs_light_from_16_to_00 script running"
-    entity_category: diagnostic
-    lambda: |-
-      return id(turn_OFF_stairs_light_from_16_to_00).is_running();
-
-  - platform: template
-    name: "DEBUG - turn_ON_stairs_light_from_16_to_12_init script running"
-    entity_category: diagnostic
-    lambda: |-
-      return id(turn_ON_stairs_light_from_16_to_12_init).is_running();
-
-  - platform: template
-    name: "DEBUG - turn_ON_stairs_light_from_00_to_04_init script running"
-    entity_category: diagnostic
-    lambda: |-
-      return id(turn_ON_stairs_light_from_00_to_04_init).is_running();
-
 # DEBUG
 text_sensor:
   - platform: debug
     device:
       name: "DEBUG - Device Info"
-    reset_reason:
-      name: "DEBUG - Reset Reason"
 
 sensor:
-  - platform: debug
-    free:
-      name: "DEBUG - Heap Free"
-    block:
-      name: "DEBUG - Heap Max Block"
-    loop_time:
-      name: "DEBUG - Loop Time"
-
   - platform: uptime
     name: Uptime
     id: esp_uptime
@@ -804,11 +567,12 @@ sensor:
 
   - platform: copy # Reports the WiFi signal strength in %
     source_id: wifi_signal_db
-    entity_category: diagnostic
     name: WiFi Signal Percent
     filters:
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
-    unit_of_measurement: "%"
+    unit_of_measurement: "Signal %"
+    entity_category: "diagnostic"
+    device_class: ""
 
   - platform: template
     entity_category: diagnostic
@@ -841,6 +605,12 @@ switch:
     optimistic: True
     restore_mode: RESTORE_DEFAULT_OFF
 
+  - platform: template
+    id: auto_delay_off_init_pir
+    name: Auto Turn Off Lights Delay
+    optimistic: True
+    restore_mode: RESTORE_DEFAULT_OFF
+
 number:
   - platform: template
     name: Leds Brightness
@@ -853,6 +623,128 @@ number:
     restore_value: True
     optimistic: True
     initial_value: 100
+    on_value:
+      then:
+        # LIVE SET VALUES INTO LIGHTS IF THEY ARE IN "ON" STATE
+        - if:
+            condition:
+              - lambda: 'return id(light_step_00_state) == "on";'
+            then:
+              - light.control:
+                  id: step_00
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_01_state) == "on";'
+            then:
+              - light.control:
+                  id: step_01
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_02_state) == "on";'
+            then:
+              - light.control:
+                  id: step_02
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_03_state) == "on";'
+            then:
+              - light.control:
+                  id: step_03
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_04_state) == "on";'
+            then:
+              - light.control:
+                  id: step_04
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_05_state) == "on";'
+            then:
+              - light.control:
+                  id: step_05
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_06_state) == "on";'
+            then:
+              - light.control:
+                  id: step_06
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_07_state) == "on";'
+            then:
+              - light.control:
+                  id: step_07
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_08_state) == "on";'
+            then:
+              - light.control:
+                  id: step_08
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_09_state) == "on";'
+            then:
+              - light.control:
+                  id: step_09
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_10_state) == "on";'
+            then:
+              - light.control:
+                  id: step_10
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_11_state) == "on";'
+            then:
+              - light.control:
+                  id: step_11
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_12_state) == "on";'
+            then:
+              - light.control:
+                  id: step_12
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_13_state) == "on";'
+            then:
+              - light.control:
+                  id: step_13
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_14_state) == "on";'
+            then:
+              - light.control:
+                  id: step_14
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_15_state) == "on";'
+            then:
+              - light.control:
+                  id: step_15
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
+        - if:
+            condition:
+              - lambda: 'return id(light_step_16_state) == "on";'
+            then:
+              - light.control:
+                  id: step_16
+                  brightness: !lambda "return (id(leds_brightness).state / 100.0);"
 
   - platform: template
     name: Leds Brightness Day
@@ -929,6 +821,35 @@ number:
     restore_value: True
     optimistic: True
     initial_value: 30
+
+  - platform: template
+    name: Delay Off Init PIR Day
+    entity_category: config
+    id: delay_off_init_pir_day
+    min_value: 5
+    max_value: 1000
+    step: 1
+    unit_of_measurement: "s"
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 30
+
+  - platform: template
+    name: Delay Off Init PIR Night
+    entity_category: config
+    id: delay_off_init_pir_night
+    min_value: 5
+    max_value: 1000
+    step: 1
+    unit_of_measurement: "s"
+    mode: box
+    restore_value: True
+    optimistic: True
+    initial_value: 60
+
+# include "BINARY_SENSOR" values
+<<: !include esp_stairs_files/binary_sensor_values.yaml
 
 # include "SELECT" values
 <<: !include esp_stairs_files/select_values.yaml
