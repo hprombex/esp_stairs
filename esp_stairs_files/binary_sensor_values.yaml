@@ -1,0 +1,245 @@
+binary_sensor:
+  - platform: gpio # PIR init 0
+    name: PIR init Step 00
+    id: pir_step_00_init
+    pin: ${GPIO_SA00P}
+    device_class: motion
+    filters:
+      - delayed_off: !lambda "return (id(delay_off_init_pir).state * 1000) - 500;"
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+    on_press: # Motion detected
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - if:
+                  condition:
+                    and:
+                      - lambda: 'return id(light_step_04_state) == "off";'
+                  then:
+                    - wait_until:
+                        condition:
+                          lambda: 'return id(light_step_11_state) == "off";'
+                        timeout: 50ms
+                    - script.execute: turn_ON_stairs_light_from_00_to_04_init
+              - wait_until:
+                  condition:
+                    lambda: "return (id(pir_step_01).state || id(pir_step_02).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
+              - script.execute: turn_ON_stairs_light_from_00_to_16
+    on_release:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - globals.set:
+                  id: last_off
+                  value: '"pir_step_01_init"'
+              - delay: 100ms
+              - wait_until:
+                  condition:
+                    and:
+                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
+                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
+                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
+              - delay: 100ms
+              - if:
+                  condition:
+                    lambda: 'return id(last_off) == "pir_step_01_init";'
+                  then:
+                    - script.execute: turn_OFF_stairs_light_from_16_to_00
+
+  - platform: gpio # PIR init 1
+    name: PIR init Step 01
+    id: pir_step_01_init
+    pin: ${GPIO_SA01P}
+    device_class: motion
+    filters:
+      - delayed_off: !lambda "return id(delay_off_init_pir).state * 1000;"
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+    on_press:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - if:
+                  condition:
+                    and:
+                      - lambda: 'return id(light_step_04_state) == "off";'
+                  then:
+                    - wait_until:
+                        condition:
+                          lambda: 'return id(light_step_11_state) == "off";'
+                        timeout: 50ms
+                    - script.execute: turn_ON_stairs_light_from_00_to_04_init
+              - wait_until:
+                  condition:
+                    lambda: "return (id(pir_step_01).state || id(pir_step_02).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
+              - script.execute: turn_ON_stairs_light_from_00_to_16
+    on_release:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - globals.set:
+                  id: last_off
+                  value: '"pir_step_01_init"'
+              - delay: 100ms
+              - wait_until:
+                  condition:
+                    and:
+                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
+                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
+                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
+              - delay: 100ms
+              - if:
+                  condition:
+                    lambda: 'return id(last_off) == "pir_step_01_init";'
+                  then:
+                    - script.execute: turn_OFF_stairs_light_from_16_to_00
+
+  - platform: gpio # PIR init 2
+    name: PIR init Step 02
+    id: pir_step_02_init
+    pin: ${GPIO_SA02P}
+    device_class: motion
+    filters:
+      - delayed_off: !lambda "return id(delay_off_init_pir).state * 1000;"
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+    on_press:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - if:
+                  condition:
+                    and:
+                      - lambda: 'return id(light_step_12_state) == "off";'
+                  then:
+                    - wait_until:
+                        condition:
+                          lambda: 'return id(light_step_05_state) == "off";'
+                        timeout: 50ms
+                    - script.execute: turn_ON_stairs_light_from_16_to_12_init
+              - wait_until:
+                  condition:
+                    lambda: "return (id(pir_step_15).state || id(pir_step_14).state || id(pir_step_13).state) || (!id(pir_step_00_init).state && !id(pir_step_01_init).state && !id(pir_step_02_init).state);"
+              - script.execute: turn_ON_stairs_light_from_16_to_00
+    on_release:
+      then:
+        - if:
+            condition:
+              - switch.is_on: auto_lights
+            then:
+              - globals.set:
+                  id: last_off
+                  value: '"pir_step_02_init"'
+              - delay: 100ms
+              - wait_until:
+                  condition:
+                    and:
+                      - binary_sensor.is_off: pir_step_00_init # Check if pir_step_00_init is off
+                      - binary_sensor.is_off: pir_step_01_init # Check if pir_step_01_init is off
+                      - binary_sensor.is_off: pir_step_02_init # Check if pir_step_02_init is off
+              - delay: 100ms
+              - if:
+                  condition:
+                    lambda: 'return id(last_off) == "pir_step_02_init";'
+                  then:
+                    - script.execute: turn_OFF_stairs_light_from_00_to_16
+
+  # PIR 1 - 2
+  - platform: gpio
+    pin: ${GPIO_S01P}
+    name: PIR Step 01
+    device_class: motion
+    id: pir_step_01
+    filters:
+      - delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  - platform: gpio
+    pin: ${GPIO_S02P}
+    name: PIR Step 02
+    device_class: motion
+    id: pir_step_02
+    filters:
+      - delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  # PIR 13 - 15
+  - platform: gpio
+    pin: ${GPIO_S13P}
+    name: PIR Step 13
+    device_class: motion
+    id: pir_step_13
+    filters:
+      #- delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  - platform: gpio
+    pin: ${GPIO_S14P}
+    name: PIR Step 14
+    device_class: motion
+    id: pir_step_14
+    filters:
+      #- delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  - platform: gpio
+    pin: ${GPIO_S15P}
+    name: PIR Step 15
+    device_class: motion
+    id: pir_step_15
+    filters:
+      #- delayed_off: ${delayedoff}
+      - delayed_on: ${delayedon}
+      - delayed_on_off: ${delayed_onoff}
+
+  # DEBUG BINARY SENSORS
+  - platform: template
+    name: "DEBUG - turn_ON_stairs_light_from_00_to_16 script running"
+    entity_category: diagnostic
+    lambda: |-
+      return id(turn_ON_stairs_light_from_00_to_16).is_running();
+
+  - platform: template
+    name: "DEBUG - turn_ON_stairs_light_from_16_to_00 script running"
+    entity_category: diagnostic
+    lambda: |-
+      return id(turn_ON_stairs_light_from_16_to_00).is_running();
+
+  - platform: template
+    name: "DEBUG - turn_OFF_stairs_light_from_00_to_16 script running"
+    entity_category: diagnostic
+    lambda: |-
+      return id(turn_OFF_stairs_light_from_00_to_16).is_running();
+
+  - platform: template
+    name: "DEBUG - turn_OFF_stairs_light_from_16_to_00 script running"
+    entity_category: diagnostic
+    lambda: |-
+      return id(turn_OFF_stairs_light_from_16_to_00).is_running();
+
+  - platform: template
+    name: "DEBUG - turn_ON_stairs_light_from_16_to_12_init script running"
+    entity_category: diagnostic
+    lambda: |-
+      return id(turn_ON_stairs_light_from_16_to_12_init).is_running();
+
+  - platform: template
+    name: "DEBUG - turn_ON_stairs_light_from_00_to_04_init script running"
+    entity_category: diagnostic
+    lambda: |-
+      return id(turn_ON_stairs_light_from_00_to_04_init).is_running();

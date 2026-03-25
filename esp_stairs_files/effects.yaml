@@ -17,7 +17,7 @@
       static int x = 0;
       if (initial_run) {
         x = 0;
-        it.all() = ESPColor::BLACK;
+        it.all() = Color::BLACK;
       }
       if (x < it.size()) {
         it[x] = current_color;
@@ -31,11 +31,104 @@
       static int x = 0;
       if (initial_run) {
         x = it.size();
-        it.all() = ESPColor::WHITE;
+        it.all() = Color::WHITE;
       }
       if (x > 0) {
         x -= 1; 
-        it[x] = ESPColor::BLACK;
+        it[x] = Color::BLACK;
+      }
+
+- addressable_lambda:
+    name: Flames Vertical Right
+    update_interval: 35ms
+    lambda: |-
+      // You may adjust the following two variables as well as the update_interval to fit your needs
+      const uint8_t Cooling  = 55;
+      const uint8_t Sparking = 110;
+
+      static std::vector<uint8_t> heat(it.size(), 0);
+      int cooldown;
+
+      for (uint16_t i = 0; i < it.size(); i++) {
+        uint32_t cooldown_range = ((Cooling * 10) / it.size()) + 2;
+        cooldown = esphome::random_uint32() % cooldown_range;
+        if (cooldown > heat[i]) {
+          heat[i] = 0;
+        } else {
+          heat[i] -= cooldown;
+        }
+      }
+
+      for (int k = it.size() - 1; k >= 2; k--) {
+        heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
+      }
+
+      if ((esphome::random_uint32() % 256) < Sparking) {
+        int spark_limit = std::min((int)(it.size() / 10), 7);
+        int y = esphome::random_uint32() % spark_limit;
+        int add_heat = (esphome::random_uint32() % (256 - 160)) + 160;
+        heat[y] = std::min(255, heat[y] + add_heat);
+      }
+
+      for (uint16_t Pixel = 0; Pixel < it.size(); Pixel++) {
+        uint8_t t192 = round((heat[Pixel] / 255.0) * 191);
+        uint8_t heatramp = (t192 & 0x3F) << 2;
+
+        if (t192 > 0x80) {
+          it[it.size() - Pixel - 1] = Color(255, 255, heatramp);
+        } else if (t192 > 0x40) {
+          it[it.size() - Pixel - 1] = Color(255, heatramp, 0);
+        } else {
+          it[it.size() - Pixel - 1] = Color(heatramp, 0, 0);
+        }
+      }
+
+- addressable_lambda:
+    name: Flames Vertical Left
+    update_interval: 35ms
+    lambda: |-
+      // You may adjust the following two variables as well as the update_interval to fit your needs
+      const uint8_t Cooling  = 55;
+      const uint8_t Sparking = 110;
+
+      static std::vector<uint8_t> heat(it.size(), 0);
+      int cooldown;
+
+      for (uint16_t i = 0; i < it.size(); i++) {
+        uint32_t cooldown_range = ((Cooling * 10) / it.size()) + 2;
+        cooldown = esphome::random_uint32() % cooldown_range;
+        if (cooldown > heat[i]) {
+          heat[i] = 0;
+        } else {
+          heat[i] -= cooldown;
+        }
+      }
+
+      for (int k = it.size() - 1; k >= 2; k--) {
+        heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
+      }
+
+      if ((esphome::random_uint32() % 256) < Sparking) {
+        int spark_limit = std::min((int)(it.size() / 10), 7);
+        int y = esphome::random_uint32() % spark_limit;
+        int add_heat = (esphome::random_uint32() % (256 - 160)) + 160;
+        heat[y] = std::min(255, heat[y] + add_heat);
+      }
+
+      for (uint16_t i = 0; i < it.size(); i++) {
+        uint8_t t192 = round((heat[i] / 255.0) * 191);
+        uint8_t heatramp = (t192 & 0x3F) << 2;
+
+        if (t192 > 0x80) {        // hottest
+          // it[it.size() - i - 1] = Color(255, 255, heatramp);
+          it[i] = Color(255, 255, heatramp);
+        } else if (t192 > 0x40) { // middle
+          // it[it.size() - i - 1] = Color(255, heatramp, 0);
+          it[i] = Color(255, heatramp, 0);
+        } else {                  // coolest
+          // it[it.size() - i - 1] = Color(heatramp, 0, 0);
+          it[i] = Color(heatramp, 0, 0);
+        }
       }
 
 - addressable_lambda:
@@ -57,64 +150,6 @@
       if (pos >= it.size()) pos = 0; //rollover
 
 - addressable_lambda:
-    name: Flames Vertical
-    # update_interval: 18ms
-    update_interval: 35ms
-    lambda: |-
-      // You may adjust the following two variables as well as the update_interval to fit your needs
-      const uint8_t Cooling  = 55;
-      const uint8_t Sparking = 110;
-
-      // Use byte* instead of byte[] to allow dynamic allocation based on number of pixels
-      static byte *heat = (byte*) calloc(it.size(), sizeof(byte));
-      int cooldown;
-
-      // Step 1.  Cool down every cell a little
-      for (uint16_t i = 0; i < it.size(); i++) {
-        cooldown = random(0, ((Cooling * 10) / it.size()) + 2);
-
-        if (cooldown > heat[i]) {
-          heat[i] = 0;
-        } else {
-          heat[i] = heat[i] - cooldown;
-        }
-      }
-
-      // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-      for (uint16_t k = it.size() - 1; k >= 2; k--) {
-        heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
-      }
-
-      // Step 3.  Randomly ignite new 'sparks' near the bottom
-      if (random(255) < Sparking) {
-        int y = random(min(it.size() / 10, 7));
-        heat[y] = heat[y] + random(160, 255);
-      }
-
-      // Step 4.  Convert heat to LED colors
-      for (uint16_t Pixel = 0; Pixel < it.size(); Pixel++) {
-        // Scale 'heat' down from 0-255 to 0-191
-        byte t192 = round((heat[Pixel] / 255.0) * 191);
-
-        // calculate ramp up from
-        byte heatramp = t192 & 0x3F; // 0..63
-        heatramp <<= 2; // scale up to 0..252
-
-        // figure out which third of the spectrum we're in:
-        //this is where you can reverse the effect by switching the commented out lines in all 3 places.
-        if (t192 > 0x80) {                     // hottest
-          it[it.size() - Pixel - 1] = ESPColor(255, 255, heatramp);
-          // it[Pixel] = ESPColor(255, 255, heatramp);
-        } else if (t192 > 0x40 ) {             // middle
-          it[it.size() - Pixel - 1] = ESPColor(255, heatramp, 0);
-          // it[Pixel] = ESPColor(255, heatramp, 0);
-        } else {                               // coolest
-          it[it.size() - Pixel - 1] = ESPColor(heatramp, 0, 0);
-          // it[Pixel] = ESPColor(heatramp, 0, 0);
-        }
-      }
-
-- addressable_lambda:
     name: Cycle Colors
     update_interval: 10ms
     lambda: |-
@@ -134,16 +169,16 @@
 
       } else if (red < 4 && green > 251 && blue < 252){
         blue+=5;
-        
+
       } else if (red < 4 && green > 3 && blue > 251){
         green-=5;
-        
+
       } else if (red < 252 && green < 4 && blue > 251){
         red+=5;
-        
+
       } else if (red > 251 && green < 4 && blue > 3){
         blue-=5;
-        
+
       }
 
       it[num] = Color(red, green, blue);
@@ -158,14 +193,14 @@
     name: Wheel of Color
     update_interval: 100ms
     lambda: |-
-      esphome::Color colors[] = { ESPColor(255,0,0), 
-                  ESPColor(0,255,0), 
-                  ESPColor(255,255,0),  
-                  ESPColor(0,0,255),  
-                  ESPColor(255,82,0),  
-                  ESPColor(163,0,255),  
+      esphome::Color colors[] = { Color(255,0,0), 
+                  Color(0,255,0), 
+                  Color(255,255,0),  
+                  Color(0,0,255),  
+                  Color(255,82,0),  
+                  Color(163,0,255),  
                   };
-                            
+
       static int state = 0;
       static int step = 0;
       const int color_size = 6;
@@ -189,74 +224,47 @@
     name: Fire
     update_interval: 50ms
     lambda: |-
-      for (uint16_t i = 0; i < it.size(); i++) {                                        //uint8_t may be enough, if using < 256, but doesn't matter memorywise
-        float brightness = (it.size()/2 - abs(it.size()/2 - i)) / (float)(it.size()/2); //center effect, fade out to the edges
-        uint8_t whiteness = random(64 * brightness);                                    //add some white, centered
-        uint8_t redness = random(64) + random(127 * brightness);                        //make red
-        uint8_t greeness = random(redness/2);                                           //add some green to give it a yellow tint
-        it[i] = ESPColor(whiteness + redness, whiteness + greeness, whiteness);
+      for (uint16_t i = 0; i < it.size(); i++) {
+        //center effect, fade out to the edges
+        float brightness = (it.size()/2 - abs(it.size()/2 - i)) / (float)(it.size()/2);
+
+        //add some white, centered
+        uint8_t whiteness = random(64 * brightness);
+
+        //make red
+        uint8_t redness = random(64) + random(127 * brightness);
+
+        //add some green to give it a yellow tint
+        uint8_t greeness = random(redness/2);
+        it[i] = Color(whiteness + redness, whiteness + greeness, whiteness);
       }
 
 - addressable_lambda:
-    name: Blue fire
-    update_interval: 5ms
+    name: Blue Fire
+    update_interval: 50ms
     lambda: |-
-      for( int Pixel = 0; Pixel <= it.size(); Pixel++) {
-        it[Pixel] = Color(22, 24, 130);
-        Color color1;
-        uint8_t r1,g1,b1;
-        uint8_t r2,g2,b2;
-        uint8_t r3,g3,b3;
-        int16_t r,g,b;
+      for (uint16_t i = 0; i < it.size(); i++) {
+        float brightness = (it.size()/2 - abs(it.size()/2 - i)) / (float)(it.size()/2);
 
-        color1 = it[Pixel].get();
-        //int color2[] = {80,35,0};
-        int color2[] = {70, 185, 242};
-        //ESP_LOGD("main", "Color1 :(%d,%d,%d)", color1[0],color1[1],color1[2]);
+        // Add some "white-ish sparkles"
+        uint8_t whiteness = random(64 * brightness);
 
-        r1 = (color1[0] ),
-        g1 = (color1[1] ),
-        b1 = (color1[2] );
+        // Dominant blue: base + brightness-dependent boost
+        uint8_t blueness = random(64) + random(127 * brightness);
 
-        r2 = (color2[0] ),
-        g2 = (color2[1] ),
-        b2 = (color2[2] );
+        // Some cyan-ish tint: green <= blue
+        uint8_t greenness = random(blueness / 3);   // subtle, to keep color blue-leaning
 
-        // Add Color
-        it[Pixel] = Color(constrain(r1+r2, 0, 255), constrain(g1+g2, 0, 255), constrain(b1+b2, 0, 255));
-        int rc = random(160);
+        // Red stays minimal to keep the color cold
+        uint8_t coldness = random(whiteness / 4);
 
-        // subtract
-        
-        color2[0] = rc/4;
-        color2[1] = rc/4;
-        color2[2] = rc;
-
-        r1 = (color1[0] ),
-        g1 = (color1[1] ),
-        b1 = (color1[2] );
-
-        r2 = (color2[0] ),
-        g2 = (color2[1] ),
-        b2 = (color2[2] );
-
-        r=(int16_t)r1-(int16_t)r2;
-        g=(int16_t)g1-(int16_t)g2;
-        b=(int16_t)b1-(int16_t)b2;
-        if(r<0) r=0;
-        if(g<0) g=0;
-        if(b<0) b=0;
-
-        //ESP_LOGD("main", "Color1 :(%d,%d,%d)", r,g,b);
-        // Substract Color
-        it[Pixel] = Color(r, g, b);
+        it[i] = Color(coldness + whiteness, greenness + whiteness, blueness + whiteness);
       }
-
-      delay(random(10,120));
 
 - addressable_lambda:
     name: Lightning
-    update_interval: 48ms
+    update_interval: 24ms
+    # update_interval: 48ms
     lambda: |-
       static uint16_t next_frame = 0;
       static uint16_t frame = 0;
@@ -268,6 +276,7 @@
       if (!frame) { // first frame
         flashes = 4 + random(5);
         next_frame = flashes * 2 + 5 + random(25);
+
         // next_frame = flashes * 2 + 5 + random(5);
         it.all() = esphome::Color::BLACK;
       }
@@ -282,3 +291,960 @@
       }
       frame++;
       if (frame >= next_frame) frame = 0; // Reset frames
+
+
+- addressable_lambda:
+    name: Falling light
+    update_interval: 10ms
+    lambda: |-
+      static auto TAG = "Falling light";
+      static uint16_t progress = 0;
+      static ESPHSVColor mYellow = ESPHSVColor(40, 255, 255);
+      if (initial_run) {
+        progress = 0;
+        it.all() = Color::BLACK;
+      }
+      else {
+        //yellow led appear at start of strip and falling down
+        if (progress < it.size()) {
+          it[progress] = mYellow;
+          progress++;
+        }
+        //when all leds get yellow light, do nothing
+        else {
+          }
+      };
+
+- addressable_lambda:
+    name: Rise light
+    update_interval: 10ms
+    lambda: |-
+      static auto TAG = "Rise light";
+      static uint16_t progress = 0;
+      static ESPHSVColor mYellow = ESPHSVColor(40, 255, 255);
+      if (initial_run) {
+        progress = 0;
+        it.all() = Color::BLACK;
+      }
+      else {
+        //yellow led appear at the end of strip and rising up
+        if (progress < it.size()) {
+          progress++;
+          it[it.size() - progress] = mYellow;
+        }
+        //when all leds get yellow light, do nothing
+        else {
+          }
+      };
+      
+- addressable_lambda:
+    name: Simple light
+    update_interval: 10ms
+    lambda: |-
+      static auto TAG = "Simple light";
+      static uint16_t progress = 0;
+      static ESPHSVColor mhsv;
+      static ESPHSVColor mYellow = ESPHSVColor(40, 255, 255);
+      if (initial_run) {
+        progress = 0;
+        it.all() = mYellow.to_rgb();
+        mhsv = mYellow;
+        // ESP_LOGD(TAG, "initial mhsv.hue is: %d", mhsv.hue);
+      }
+      else {
+        //strip change hue a litle, light blink effect when motion detected within occupied interval
+        if (progress < 5) {
+          mhsv.hue += 3;
+          it.all() = mhsv.to_rgb();
+          progress++;
+          //ESP_LOGD(TAG, "increas mhsv.hue : %d", mhsv.hue);
+        }
+        //set hue to initial value
+        else if (progress < 10) {
+          mhsv.hue -= 3;
+          it.all() = mhsv.to_rgb();
+          progress++;
+          //ESP_LOGD(TAG, "next progress : %d", progress);
+        }
+        else if (progress == 10) {
+          it.all() = mYellow.to_rgb();
+          progress++;
+          }
+        else {
+        
+        }
+      };
+
+- addressable_lambda:
+    name: HSV
+    update_interval: 30ms
+    lambda: |-
+      static uint8_t x = 0;
+      if (x > 255)
+        x = 0;
+
+      it.all() = ESPHSVColor(x, 255, 255);
+      x += 1; 
+
+- addressable_lambda:
+    name: Christmas RedGreen
+    lambda: |-
+      for (int i = 1; i <  it.size(); i+=2) {
+      it[i] = Color(255, 0, 18);
+      }
+      for (int i = 0; i <  it.size(); i+=2) {
+      it[i] = Color(0, 179, 44);
+      }
+# MIN EFFECTS END
+
+- pulse:
+    name: Pulse
+- pulse:
+    name: Fast Pulse
+    transition_length: 0.5s
+    update_interval: 0.5s
+    min_brightness: 10%
+    max_brightness: 100%
+- addressable_scan:
+    name: Scan
+    move_interval: 25ms
+- addressable_twinkle:
+    name: Twinkle
+- addressable_random_twinkle:
+    name: Random Twinkle
+- addressable_fireworks:
+    name: Fireworks
+- addressable_fireworks:
+    name: Fireworks Effect With Custom Values
+    update_interval: 32ms
+    spark_probability: 10%
+    use_random_color: false
+    fade_out_rate: 120
+- addressable_flicker:
+    name: Flicker
+- strobe:
+    name: Strobe
+- addressable_lambda:
+    name: Chroma Haze
+    update_interval: 10ms
+    lambda: |
+      static uint8_t hue = 160;
+      static uint16_t saturation = 255;
+      hue = hue - 5 + (uint16_t)(random_float() * 10);
+      float rand_v = random_float();
+      uint16_t new_saturation = 255 - (uint16_t)(rand_v * rand_v * 200);
+      saturation = (saturation * 7 + new_saturation) / 8;
+      if ((hue < 30 || hue > 225) && saturation > 200) {
+        saturation = (saturation * 2 + 180) / 3;
+      }
+      it.shift_right(1);
+      it[0] = ESPHSVColor(hue, saturation, 255);
+
+- addressable_lambda:
+    name: ColorScan
+    update_interval: 50ms
+    lambda: |-
+      // it.size() - Number of LEDs
+      // it[num] - Access the LED at index num.
+
+      // Set the LED at num to the given r, g, b values
+      // it[num] = Color(r, g, b);
+
+      // Get the color at index num (Color instance)
+      // it[num].get();
+
+      static uint16_t num1 = 0;
+      static uint16_t red = 255;
+      static uint16_t green = 3;
+      static uint16_t blue = 3;
+      static bool dir = false;
+      
+      uint16_t num = num1;
+      // uint16_t numled = it.size();
+
+      if(red > 251 && blue < 4 && green < 252){
+        green+=5;
+
+      } else if (red > 3 && green > 251 && blue < 4){
+        red-=5;
+
+      } else if (red < 4 && green > 251 && blue < 252){
+        blue+=5;
+
+      } else if (red < 4 && green > 3 && blue > 251){
+        green-=5;
+
+      } else if (red < 252 && green < 4 && blue > 251){
+        red+=5;
+
+      } else if (red > 251 && green < 4 && blue > 3){
+        blue-=5;
+
+      }
+
+      it[num] = Color(red, green, blue);
+      if(dir) {
+        if(num1 == it.size()){
+          dir = false;
+        } else{
+          num1++;
+        }
+      } else  {
+        if(num1 == 0){
+          dir = true;
+        } else{
+          num1--;
+        }
+      }
+
+- addressable_lambda:
+    name: Candy Cane
+    update_interval: 150ms
+    lambda: |-
+      static int state = 0;
+      const int width = 16;
+
+      for (int i = it.size() - 1; i > 0; i--) {
+        it[i] = it[i - 1].get();
+      }
+
+      if(state < width/2){
+        it[0] = esphome::Color(255,0,0);
+      } else {
+        it[0] = esphome::Color::WHITE;
+      }
+
+      state += 1;
+      if (state >= width) 
+          state = 0;
+
+- addressable_lambda:
+    name: Vesuvius
+    update_interval: 50ms
+    lambda: |-
+        esphome::Color colors[] = {
+          Color(255,0,0),
+          Color(0,255,0),
+          Color(255,255,0),
+          Color(0,0,255),
+          Color(255,0,255),
+          Color(0,255,255),
+          Color(255,255,255),
+          Color(0,0,0),
+          };
+
+        static int color = 0;
+        static int step = 0;
+        const int color_size = 8;
+
+        it[it.size()/2 - step] = colors[color];
+        it[it.size()/2 + step] = colors[color];
+
+        step += 1;
+        if (step >= it.size()/2){
+          step = 0;
+          color += 1;
+          if (color >= color_size) 
+              color = 0;
+        }
+
+- addressable_lambda:
+    name: Blue Scan
+    update_interval: 25ms
+    lambda: |-
+      static int step = 0;
+      static int direction = 1;
+
+      if(initial_run){
+        step = 0;
+      }
+
+      it[step] = Color(0,0,255);
+      if(step >0 && step < it.size()){
+        it[step + (direction * -1)] = Color::BLACK;
+      }
+
+      step = step + direction;
+
+      if(step >= it.size() || step < 0){
+        direction = direction * -1;
+        step = step + (direction * 2);
+      }
+
+- addressable_lambda:
+    name: "Fireworks 2024"
+    lambda: |-
+      // State machine variables
+      static int state = 0; // 0: idle, 1: launching, 2: old explosion, 3: new dynamic explosion, 4: sparkly glitter effect
+      static float position_f = 0; // Floating point position for smoother control
+      static int direction = 1; // 1: left to right, -1: right to left
+      static int peak = 0; // Random peak position
+      static float speed = 0;
+      static float move_speed = 10.0; //  speed of the firework
+      static int explosion_step = 0;
+
+      // Fade all LEDs slightly
+      for (int i = 0; i < it.size(); i++) {
+        auto color = it[i].get();
+        color.red = color.red * 3 / 5;   // Reduce brightness to 60%
+        color.green = color.green * 3 / 5;
+        color.blue = color.blue * 3 / 5;
+        it[i] = color;
+      }
+
+      // State machine logic
+      switch (state) {
+        case 0: // Idle, prepare to launch
+          if (rand() % 20 == 0) { // Random chance to start a new firework
+            direction = (rand() % 2 == 0) ? 1 : -1;
+            position_f = (direction == 1) ? 0 : (it.size() - 1);
+            peak = rand() % (it.size() / 2) + it.size() / 4; // Random peak between 25% and 75% of the strip
+            speed = move_speed; 
+            state = 1;
+          }
+          break;
+
+        case 1: // Launching
+          {
+            int start = static_cast<int>(position_f);
+            position_f += direction * speed; // Update position
+            int end = static_cast<int>(position_f);
+
+            // Set the firework's trail
+            if (start > end) std::swap(start, end);
+            for (int i = start; i <= end; i++) {
+              if (i >= 0 && i < it.size()) {
+                it[i] = esphome::Color(128, 128, 128); // Less bright trail
+              }
+            }
+
+            // Slow down as it approaches the peak
+            if ((direction == 1 && position_f >= peak) || (direction == -1 && position_f <= peak)) {
+              speed *= 0.8; // Gradually reduce speed
+              if (speed < 0.1) { // If the firework is nearly stopped
+                // Randomly pick either old explosion, new dynamic explosion, or sparkly glitter effect
+                state = (rand() % 3 == 0) ? 2 : (rand() % 2 == 0) ? 3 : 4;
+                explosion_step = 0;
+              }
+            }
+          }
+          break;
+
+        case 2: // New explosion effect
+          {
+            static bool explosion_initialized2 = false;
+            static esphome::Color colors[50];
+            static int offsets[50];
+            static int total_particles = 50;
+            float fade = 1.0f - (explosion_step * 0.02f); // Faster fade rate
+            if (fade < 0.0f) fade = 0.0f;
+
+            // Initialize particles once per explosion
+            if (!explosion_initialized2) {
+              // Create an array of random colors
+              for (int i = 0; i < total_particles; i++) {
+                colors[i] = esphome::Color(rand() % 255, rand() % 255, rand() % 255);
+                offsets[i] = 0;
+              }
+              explosion_initialized2 = true;
+
+              // Create a bright white flash
+              for (int i = -5; i <= 5; i++) {
+                int index = static_cast<int>(position_f) + i;
+                if (index >= 0 && index < it.size()) {
+                  it[index] = esphome::Color::WHITE;
+                }
+              }
+            } else {
+              int center = static_cast<int>(position_f);
+              // Update and display each particle
+              for (int i = 0; i < total_particles; i++) {
+                for (int j = -1; j <= 1; j++) { // Each particle is 3 LEDs wide
+                  int pos_left = center - offsets[i] + j;
+                  int pos_right = center + offsets[i] + j;
+                  if (pos_left >= 0 && pos_left < it.size()) {
+                    // Set the color from the array
+                    auto c = colors[i];
+                    // Scale color by fade
+                    c.red   = (uint8_t)(c.red   * fade);
+                    c.green = (uint8_t)(c.green * fade);
+                    c.blue  = (uint8_t)(c.blue  * fade);
+
+                    it[pos_left] = c;
+                  }
+                  if (pos_right >= 0 && pos_right < it.size()) {
+                    // Set the color from the array
+                    auto c = colors[i];
+                    // Scale color by fade
+                    c.red   = (uint8_t)(c.red   * fade);
+                    c.green = (uint8_t)(c.green * fade);
+                    c.blue  = (uint8_t)(c.blue  * fade);
+
+                    it[pos_right] = c;
+                  }
+                }
+                // Move outward faster
+                offsets[i] += 3; // Faster propagation
+              }
+
+              // Create gaps between particles and make particles disappear
+              for (int i = 0; i < total_particles; i++) {
+                for (int j = -2; j <= 2; j++) { // Each particle is 5 LEDs wide
+                  int pos_left = center - offsets[i] + j;
+                  int pos_right = center + offsets[i] + j;
+                  if (pos_left >= 0 && pos_left < it.size()) {
+                    if (rand() % 2 == 0) {
+                      it[pos_left] = esphome::Color(0, 0, 0); // Turn off some LEDs to create gaps
+                    }
+                  }
+                  if (pos_right >= 0 && pos_right < it.size()) {
+                    if (rand() % 2 == 0) {
+                      it[pos_right] = esphome::Color(0, 0, 0); // Turn off some LEDs to create gaps
+                    }
+                  }
+                }
+              }
+            }
+
+            explosion_step++;
+            // End explosion if all particles are out of range or enough steps pass
+            if (explosion_step > (int)(it.size() / 1.5) || fade <= 0.0f) {
+              state = 0;
+              explosion_initialized2 = false;
+            }
+          }
+          break;
+
+        case 3: // New dynamic explosion effect
+          {
+            static bool explosion_initialized3 = false;
+            static int offsets[30];
+            static int total_particles = 0;
+            float fade = 1.0f - (explosion_step * 0.02f); // Faster fade rate
+            if (fade < 0.0f) fade = 0.0f;
+
+            // Initialize particles once per explosion
+            if (!explosion_initialized3) {
+              total_particles = 50 + (rand() % 51); // 50..100
+              for (int i = 0; i < total_particles; i++) {
+                // Each offset can be positive or negative
+                offsets[i] = (rand() % 10) * ((rand() % 2) ? 1 : -1);
+              }
+              explosion_initialized3 = true;
+            }
+
+            int center = static_cast<int>(position_f);
+            // Update and display each particle
+            for (int i = 0; i < total_particles; i++) {
+              int pos = center + offsets[i];
+              if (pos >= 0 && pos < it.size()) {
+                // Calculate a fade factor (higher steps => more fade)
+                auto c = esphome::Color(rand() % 255 + 128, rand() % 255 + 128, rand() % 255 + 128); // Brighter random colors
+                // Scale color by fade
+                c.red   = (uint8_t)(c.red   * fade);
+                c.green = (uint8_t)(c.green * fade);
+                c.blue  = (uint8_t)(c.blue  * fade);
+
+                // Fluctuate brightness
+                float brightness_factor = 0.5 + 0.5 * sin(explosion_step * 0.1);
+                c.red   = (uint8_t)(c.red   * brightness_factor);
+                c.green = (uint8_t)(c.green * brightness_factor);
+                c.blue  = (uint8_t)(c.blue  * brightness_factor);
+
+                it[pos] = c;
+              }
+              // Move outward faster
+              if (offsets[i] < 0) offsets[i] -= 2; // Faster propagation
+              else offsets[i] += 2;
+            }
+
+            explosion_step++;
+            // End explosion if all particles are out of range or enough steps pass
+            if (explosion_step > (int)(it.size() / 2) || fade <= 0.0f) {
+              state = 0;
+              explosion_initialized3 = false;
+            }
+          }
+          break;
+
+        case 4: // Sparkly glitter effect
+          {
+            int center = static_cast<int>(position_f);
+            int num_sparkles = 30 + rand() % 21; // Random number of sparkles between 30 and 50
+            for (int i = 0; i < num_sparkles; i++) {
+              int index = center + (rand() % (2 * explosion_step + 1)) - explosion_step;
+              if (index >= 0 && index < it.size()) { // Ensure index is within bounds
+                it[index] = esphome::Color(rand() % 255, rand() % 255, rand() % 255); // Random colors
+              }
+            }
+            explosion_step++;
+            if (explosion_step > 50) { // Duration of the sparkly glitter effect
+              state = 0; // Return to idle
+            }
+          }
+          break;
+      }
+
+- addressable_lambda:
+    name: "Wave"
+    update_interval: 40ms
+    lambda: |-
+      static float wave_position = 0.0;
+      const int x = 10;  // Width of the wave peak
+      const int y = 20;  // Spacing between wave peaks
+      const float wave_speed = 0.5;  // Speed of the wave progression
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      // Fetch the globally set color and use it
+      auto call = id(all_steps).current_values;
+      Color selected_color(call.get_red() * 255, call.get_green() * 255, call.get_blue() * 255);
+
+      for (int i = 0; i < it.size(); i++) {
+        // Calculate brightness for the wave
+        float position_in_wave = fmod(i + wave_position, x + y);
+        float brightness = 0.0;
+        if (position_in_wave < x) {
+          brightness = 1.0 - (position_in_wave / x);
+        }
+
+        // Scale the selected color by the calculated brightness
+        uint8_t r = std::min(255, static_cast<int>(selected_color.red * brightness));
+        uint8_t g = std::min(255, static_cast<int>(selected_color.green * brightness));
+        uint8_t b = std::min(255, static_cast<int>(selected_color.blue * brightness));
+
+        it[i] = Color(r, g, b);
+      }
+
+- addressable_lambda:
+    name: "Wave Fade"
+    update_interval: 40ms
+    lambda: |-
+      static float wave_position = 0.0;
+      const int x = 10;  // Width of the wave peak
+      const int y = 20;  // Spacing between wave peaks
+      const float wave_speed = 0.5;  // Speed of the wave progression
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      // Fetch the globally set color and use it
+      auto call = id(all_steps).current_values;
+      Color selected_color(call.get_red() * 255, call.get_green() * 255, call.get_blue() * 255);
+
+      for (int i = 0; i < it.size(); i++) {
+        // Calculate brightness for the wave
+        float position_in_wave = fmod(i + wave_position, x + y);
+        float brightness = 0.0;
+        if (position_in_wave < x) {
+          brightness = (1.0 - fabs((position_in_wave / x) * 2.0 - 1.0)); // Linear fade in and out
+        }
+
+        // Scale the selected color by the calculated brightness
+        uint8_t r = std::min(255, static_cast<int>(selected_color.red * brightness));
+        uint8_t g = std::min(255, static_cast<int>(selected_color.green * brightness));
+        uint8_t b = std::min(255, static_cast<int>(selected_color.blue * brightness));
+
+        it[i] = Color(r, g, b);
+      }
+
+- addressable_lambda:
+    name: "Wave Comp"
+    update_interval: 75ms
+    lambda: |-
+      static float wave_position = 0.0;
+      const int x = 10;  // Width of the wave peak
+      const int y = 20;  // Spacing between wave peaks
+      const float wave_speed = 0.5;  // Speed of the wave progression
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      // Fetch the globally set color and use it
+      auto call = id(all_steps).current_values;
+      Color rgb1(call.get_red() * 255, call.get_green() * 255, call.get_blue() * 255);
+
+      // Calculate the complementary color
+      Color rgb2(255 - rgb1.red, 255 - rgb1.green, 255 - rgb1.blue);
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      for (int i = 0; i < it.size(); i++) {
+        // Calculate brightness for the forward wave
+        float forward_position_in_wave = fmod(i + wave_position, x + y);
+        float forward_brightness = 0.0;
+        if (forward_position_in_wave < x) {
+          forward_brightness = 1.0 - (forward_position_in_wave / x);
+        }
+
+        // Calculate brightness for the backward wave
+        float backward_position_in_wave = fmod(it.size() - 1 - i + wave_position, x + y);
+        float backward_brightness = 0.0;
+        if (backward_position_in_wave < x) {
+          backward_brightness = 1.0 - (backward_position_in_wave / x);
+        }
+
+        // Add the two colors and clamp the result
+        uint8_t r = std::min(255, static_cast<int>((rgb1.red   * forward_brightness) + (rgb2.red   * backward_brightness)));
+        uint8_t g = std::min(255, static_cast<int>((rgb1.green * forward_brightness) + (rgb2.green * backward_brightness)));
+        uint8_t b = std::min(255, static_cast<int>((rgb1.blue  * forward_brightness) + (rgb2.blue  * backward_brightness)));
+
+        it[i] = Color(r, g, b);
+      }
+
+- addressable_lambda:
+    name: "Wave Comp Fade"
+    update_interval: 75ms
+    lambda: |-
+      static float wave_position = 0.0;
+      const int x = 10;  // Width of the wave peak
+      const int y = 20;  // Spacing between wave peaks
+      const float wave_speed = 0.5;  // Speed of the wave progression
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      // Fetch the globally set color and use it
+      auto call = id(all_steps).current_values;
+      Color rgb1(call.get_red() * 255, call.get_green() * 255, call.get_blue() * 255);
+
+      // Calculate the complementary color
+      Color rgb2(255 - rgb1.red, 255 - rgb1.green, 255 - rgb1.blue);
+
+      for (int i = 0; i < it.size(); i++) {
+        // Calculate brightness for the forward wave
+        float forward_position_in_wave = fmod(i + wave_position, x + y);
+        float forward_brightness = 0.0;
+        if (forward_position_in_wave < x) {
+          forward_brightness = (1.0 - fabs((forward_position_in_wave / x) * 2.0 - 1.0)); // Linear fade in/out
+        }
+
+        // Calculate brightness for the backward wave
+        float backward_position_in_wave = fmod(it.size() - 1 - i + wave_position, x + y);
+        float backward_brightness = 0.0;
+        if (backward_position_in_wave < x) {
+          backward_brightness = (1.0 - fabs((backward_position_in_wave / x) * 2.0 - 1.0)); // Linear fade in/out
+        }
+
+        // Add the two colors and clamp the result
+        uint8_t r = std::min(255, static_cast<int>((rgb1.red   * forward_brightness) + (rgb2.red   * backward_brightness)));
+        uint8_t g = std::min(255, static_cast<int>((rgb1.green * forward_brightness) + (rgb2.green * backward_brightness)));
+        uint8_t b = std::min(255, static_cast<int>((rgb1.blue  * forward_brightness) + (rgb2.blue  * backward_brightness)));
+
+        it[i] = Color(r, g, b);
+      }
+
+- addressable_lambda:
+    name: "Wave Rotate"
+    update_interval: 75ms
+    lambda: |-
+      static float wave_position = 0.0;
+      const int x = 10;  // Width of the wave peak
+      const int y = 20;  // Spacing between wave peaks
+      const float wave_speed = 0.5;  // Speed of the wave progression
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      // Fetch the globally set color and use it
+      auto call = id(all_steps).current_values;
+      Color rgb1(call.get_red() * 255, call.get_green() * 255, call.get_blue() * 255);
+
+      // Manually rotate the hue by 120 degrees
+      auto rotate_hue = [](Color color, float angle) -> Color {
+        float r = color.red / 255.0;
+        float g = color.green / 255.0;
+        float b = color.blue / 255.0;
+
+        // Convert RGB to the maximum of R, G, B
+        float max_val = std::max({r, g, b});
+        float min_val = std::min({r, g, b});
+        float delta = max_val - min_val;
+
+        float hue = 0.0;
+        if (delta > 0.0) {
+          if (max_val == r) {
+            hue = (g - b) / delta;
+          } else if (max_val == g) {
+            hue = 2.0 + (b - r) / delta;
+          } else {
+            hue = 4.0 + (r - g) / delta;
+          }
+          hue /= 6.0;
+          if (hue < 0) hue += 1.0;
+        }
+
+        // Rotate the hue by the specified angle
+        hue = fmod(hue + angle / 360.0, 1.0);
+
+        // Convert back to RGB
+        float p, q, t, h1, r_out, g_out, b_out;
+        if (delta == 0) {
+          r_out = g_out = b_out = max_val;
+        } else {
+          h1 = hue * 6;
+          p = max_val * (1.0 - delta);
+          q = max_val * (1.0 - delta * h1);
+          t = max_val * (1.0 - delta * (1.0 - h1));
+
+          if (h1 < 1) {
+            r_out = max_val;
+            g_out = t;
+            b_out = p;
+          } else if (h1 < 2) {
+            r_out = q;
+            g_out = max_val;
+            b_out = p;
+          } else if (h1 < 3) {
+            r_out = p;
+            g_out = max_val;
+            b_out = t;
+          } else if (h1 < 4) {
+            r_out = p;
+            g_out = q;
+            b_out = max_val;
+          } else if (h1 < 5) {
+            r_out = t;
+            g_out = p;
+            b_out = max_val;
+          } else {
+            r_out = max_val;
+            g_out = p;
+            b_out = q;
+          }
+        }
+        return Color(r_out * 255, g_out * 255, b_out * 255);
+      };
+
+      // Rotate the selected color by 120 degrees
+      Color rgb2 = rotate_hue(rgb1, 120.0);
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      for (int i = 0; i < it.size(); i++) {
+        // Calculate brightness for the forward wave
+        float forward_position_in_wave = fmod(i + wave_position, x + y);
+        float forward_brightness = 0.0;
+        if (forward_position_in_wave < x) {
+          forward_brightness = 1.0 - (forward_position_in_wave / x);
+        }
+
+        // Calculate brightness for the backward wave
+        float backward_position_in_wave = fmod(it.size() - 1 - i + wave_position, x + y);
+        float backward_brightness = 0.0;
+        if (backward_position_in_wave < x) {
+          backward_brightness = 1.0 - (backward_position_in_wave / x);
+        }
+
+        // Add the two colors and clamp the result
+        uint8_t r = std::min(255, static_cast<int>((rgb1.red   * forward_brightness) + (rgb2.red   * backward_brightness)));
+        uint8_t g = std::min(255, static_cast<int>((rgb1.green * forward_brightness) + (rgb2.green * backward_brightness)));
+        uint8_t b = std::min(255, static_cast<int>((rgb1.blue  * forward_brightness) + (rgb2.blue  * backward_brightness)));
+
+        it[i] = Color(r, g, b);
+      }
+
+- addressable_lambda:
+    name: "Wave Rotate Fade"
+    update_interval: 75ms
+    lambda: |-
+      static float wave_position = 0.0;
+      const int x = 10;  // Width of the wave peak
+      const int y = 20;  // Spacing between wave peaks
+      const float wave_speed = 0.5;  // Speed of the wave progression
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      // Fetch the globally set color and use it
+      auto call = id(all_steps).current_values;
+      Color rgb1(call.get_red() * 255, call.get_green() * 255, call.get_blue() * 255);
+
+      // Manually rotate the hue by 120 degrees
+      auto rotate_hue = [](Color color, float angle) -> Color {
+        float r = color.red / 255.0;
+        float g = color.green / 255.0;
+        float b = color.blue / 255.0;
+
+        // Convert RGB to the maximum of R, G, B
+        float max_val = std::max({r, g, b});
+        float min_val = std::min({r, g, b});
+        float delta = max_val - min_val;
+
+        float hue = 0.0;
+        if (delta > 0.0) {
+          if (max_val == r) {
+            hue = (g - b) / delta;
+          } else if (max_val == g) {
+            hue = 2.0 + (b - r) / delta;
+          } else {
+            hue = 4.0 + (r - g) / delta;
+          }
+          hue /= 6.0;
+          if (hue < 0) hue += 1.0;
+        }
+
+        // Rotate the hue by the specified angle
+        hue = fmod(hue + angle / 360.0, 1.0);
+
+        // Convert back to RGB
+        float p, q, t, h1, r_out, g_out, b_out;
+        if (delta == 0) {
+          r_out = g_out = b_out = max_val;
+        } else {
+          h1 = hue * 6;
+          p = max_val * (1.0 - delta);
+          q = max_val * (1.0 - delta * h1);
+          t = max_val * (1.0 - delta * (1.0 - h1));
+
+          if (h1 < 1) {
+            r_out = max_val;
+            g_out = t;
+            b_out = p;
+          } else if (h1 < 2) {
+            r_out = q;
+            g_out = max_val;
+            b_out = p;
+          } else if (h1 < 3) {
+            r_out = p;
+            g_out = max_val;
+            b_out = t;
+          } else if (h1 < 4) {
+            r_out = p;
+            g_out = q;
+            b_out = max_val;
+          } else if (h1 < 5) {
+            r_out = t;
+            g_out = p;
+            b_out = max_val;
+          } else {
+            r_out = max_val;
+            g_out = p;
+            b_out = q;
+          }
+        }
+        return Color(r_out * 255, g_out * 255, b_out * 255);
+      };
+
+      // Rotate the selected color by 120 degrees
+      Color rgb2 = rotate_hue(rgb1, 120.0);
+
+      wave_position += wave_speed;
+      if (wave_position >= (x + y)) {
+        wave_position -= (x + y);
+      }
+
+      for (int i = 0; i < it.size(); i++) {
+        // Calculate brightness for the forward wave
+        float forward_position_in_wave = fmod(i + wave_position, x + y);
+        float forward_brightness = 0.0;
+        if (forward_position_in_wave < x) {
+          forward_brightness = (1.0 - fabs((forward_position_in_wave / x) * 2.0 - 1.0)); // Linear fade in/out
+        }
+
+        // Calculate brightness for the backward wave
+        float backward_position_in_wave = fmod(it.size() - 1 - i + wave_position, x + y);
+        float backward_brightness = 0.0;
+        if (backward_position_in_wave < x) {
+          backward_brightness = (1.0 - fabs((backward_position_in_wave / x) * 2.0 - 1.0)); // Linear fade in/out
+        }
+
+        // Add the two colors and clamp the result
+        uint8_t r = std::min(255, static_cast<int>((rgb1.red   * forward_brightness) + (rgb2.red   * backward_brightness)));
+        uint8_t g = std::min(255, static_cast<int>((rgb1.green * forward_brightness) + (rgb2.green * backward_brightness)));
+        uint8_t b = std::min(255, static_cast<int>((rgb1.blue  * forward_brightness) + (rgb2.blue  * backward_brightness)));
+
+        it[i] = Color(r, g, b);
+      }
+
+- addressable_lambda:
+    name: "Christmas Tree - Static"
+    lambda: |-
+      for (int i = 0; i < it.size(); i++) {
+        if (i % 2 == 1) {
+          it[i] = Color(255, 0, 18, 0);
+        } else {
+          it[i] = Color(0, 179, 44, 0);
+        }
+      }
+
+- addressable_lambda:
+    name: "Christmas Tree - Fading"
+    lambda: |-
+      static int cycle_duration = 2000;  // Set the duration for a full fade cycle (in milliseconds)
+      const int redColor[3] = {255, 0, 18};
+      const int greenColor[3] = {0, 179, 44};
+
+      int fade = (esp_timer_get_time() / 1000) % cycle_duration; // Convert to milliseconds
+      float brightness = sin((fade * 2 * M_PI) / cycle_duration) * 0.5 + 0.5; // Sinusoidal fade function
+
+      for (int i = 0; i < it.size(); i++) {
+          int red = (1 - brightness) * redColor[0];
+          int green = (1 - brightness) * redColor[1];
+          int blue = (1 - brightness) * redColor[2];
+
+          if (i % 2 == 0) {
+            red = brightness * greenColor[0];
+            green = brightness * greenColor[1];
+            blue = brightness * greenColor[2];
+          }
+
+          it[i] = Color(red, green, blue);
+      }
+
+- addressable_lambda:
+    name: "Christmas Tree - Multicolour"
+    update_interval: 0.1s
+    lambda: |-
+      static int cycle_duration = 5000;  // Set the duration for a full fade cycle (in milliseconds)
+      const float fade_speed = 0.20; // Set the fade speed
+
+      const int colorPairs[3][2][3] = {
+        {{255, 0, 0}, {0, 0, 255}},      // Red and Blue
+        {{0, 255, 0}, {255, 255, 0}},    // Green and Yellow
+        {{0, 255, 0}, {255, 127, 0}}   // Green and Orange
+      };
+
+      int cycleIndex = (esp_timer_get_time() / 1000) % (15 * cycle_duration); // 15 cycles with 10 fast and 5 slow for each color pair
+
+      int pairIndex = cycleIndex / cycle_duration;
+      int fade = cycleIndex % cycle_duration;
+
+      const int *currentColorPair = colorPairs[pairIndex % 3][0];
+      const int *nextColorPair = colorPairs[pairIndex % 3][1];
+
+      float fadeDuration = (pairIndex % 15) < 10 ? cycle_duration : cycle_duration * fade_speed;
+      float brightness = sin((fade * 2 * M_PI) / fadeDuration) * 0.5 + 0.5;
+
+      for (int i = 0; i < it.size(); i++) {
+        int red = (1 - brightness) * currentColorPair[0];
+        int green = (1 - brightness) * currentColorPair[1];
+        int blue = (1 - brightness) * currentColorPair[2];
+
+        if (i % 2 == 0) {
+          red = brightness * nextColorPair[0];
+          green = brightness * nextColorPair[1];
+          blue = brightness * nextColorPair[2];
+        }
+
+        it[i] = Color(red, green, blue);
+      }
